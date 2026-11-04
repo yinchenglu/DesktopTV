@@ -18,17 +18,21 @@
 package org.cosinus.launchertv.fragments;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.BatteryManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -47,25 +51,35 @@ import org.cosinus.launchertv.Network;
 import org.cosinus.launchertv.Shortcuts;
 import org.cosinus.launchertv.Folders;
 import org.cosinus.launchertv.Protection;
-import org.cosinus.launchertv.activities.Folder;
 import org.cosinus.launchertv.Utils;
-import org.cosinus.launchertv.activities.AddShortcut;
+import org.cosinus.launchertv.activities.Folder;
 import org.cosinus.launchertv.activities.ApplicationList;
 import org.cosinus.launchertv.activities.Preferences;
+import org.cosinus.launchertv.activities.AddShortcut;
 import org.cosinus.launchertv.views.ApplicationView;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 @SuppressWarnings("PointlessBooleanExpression")
 public class ApplicationFragment extends Fragment implements View.OnClickListener, View.OnLongClickListener {
 	public static final String TAG = "ApplicationFragment";
 	private static final String STATE_APPLICATION = "focused_application";
 	private static final String STATE_BUTTON = "focused_button";
-	private static final int REQUEST_CODE_APPLICATION_LIST = 0x1E;
-	private static final int REQUEST_CODE_WALLPAPER = 0x1F;
-	private static final int REQUEST_CODE_APPLICATION_START = 0x20;
 	private static final int REQUEST_CODE_UNLOCK = 0x22;
+	// Popup menu actions
+	private static final int MENU_OPEN = 0;
+	private static final int MENU_MOVE_UP = 1;
+	private static final int MENU_MOVE_DOWN = 2;
+	private static final int MENU_UNINSTALL = 3;
+	private static final int MENU_APP_INFO = 4;
+	private static final int MENU_REMOVE = 5;
 
 	private ImageView mNetworkIcon;
 	private TextView mIp;
@@ -99,16 +113,12 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 
 	private int mGridX = 3;
 	private int mGridY = 2;
-	private int mMarginX;
-	private int mMarginY;
 	private boolean mShowNames;
-	private boolean mDefaultTransparency;
-	private float mTransparency;
 	private LinearLayout mBatteryLayout;
 	private LinearLayout mContainer;
 	private ApplicationView[][] mApplications = null;
+	private List<String> mTileIds = new ArrayList<>();
 	private View mSettings;
-	private View mGridView;
 	private Setup mSetup;
 	private boolean mShowingShortcut = false;
 	private final SharedPreferences.OnSharedPreferenceChangeListener mShortcutChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
@@ -122,7 +132,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 	private final BroadcastReceiver mPackageChangedReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			updateApplications();
+			rebuildHome();
 		}
 	};
 
@@ -142,7 +152,6 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		mSetup = new Setup(getContext());
 		mContainer = (LinearLayout) view.findViewById(R.id.container);
 		mSettings = view.findViewById(R.id.settings);
-		mGridView = view.findViewById(R.id.application_grid);
 		mIp = (TextView) view.findViewById(R.id.ip_address);
 		mIp.setOnClickListener(this);
 		mNetworkIcon = (ImageView) view.findViewById(R.id.network_icon);
@@ -153,13 +162,12 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		mBatteryLevel = (TextView) view.findViewById(R.id.battery_level);
 		mBatteryIcon = (ImageView) view.findViewById(R.id.battery_icon);
 
-		mTimeFormat = android.text.format.DateFormat.getTimeFormat(getActivity());
+		updateTimeFormats();
 		mDateFormat = android.text.format.DateFormat.getLongDateFormat(getActivity());
 
 		mSettings.setOnClickListener(this);
-		mGridView.setOnClickListener(this);
 
-		createApplications();
+		rebuildHome();
 
 		return view;
 	}
@@ -183,8 +191,8 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		if (state == null)
 			return;
 		int position = state.getInt(STATE_APPLICATION, -1);
-		if (position >= 0 && position < mGridX * mGridY) {
-			mApplications[position / mGridX][position % mGridX].requestFocus();
+		if (position >= 0 && position < mTileIds.size()) {
+			focusPosition(position);
 		} else {
 			View focused = getView().findViewById(state.getInt(STATE_BUTTON, View.NO_ID));
 			if (focused != null)
@@ -192,25 +200,35 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		}
 	}
 
-	private void createApplications() {
-		mContainer.removeAllViews();
+	private void focusPosition(int position) {
+		if (position < 0 || position >= mTileIds.size())
+			return;
+		int y = position / mGridX;
+		int x = position % mGridX;
+		if (y < mGridY && mApplications[y] != null && x < mApplications[y].length && mApplications[y][x] != null)
+			mApplications[y][x].requestFocus();
+	}
 
-		mGridX = mSetup.getGridX();
-		mGridY = mSetup.getGridY();
+	/**
+	 * Builds the home screen: manually placed tiles first, then every
+	 * remaining installed application sorted by name. All applications
+	 * are directly visible on the home screen.
+	 */
+	private void rebuildHome() {
+		View focusedBefore = getView() != null ? getView().findFocus() : null;
+		int focusPosition = focusedBefore instanceof ApplicationView ? ((ApplicationView) focusedBefore).getPosition() : -1;
 
-		if (mGridX < 2)
-			mGridX = 2;
-		if (mGridY < 1)
-			mGridY = 1;
-
-		mMarginX = mSetup.getMarginX();
-		mMarginY = mSetup.getMarginY();
+		mGridX = Math.max(2, mSetup.getGridX());
 		mShowNames = mSetup.showNames();
-		mDefaultTransparency = mSetup.isDefaultTransparency();
-		mTransparency = mSetup.getTransparency();
-		int marginX = Utils.getPixelFromDp(getContext(), mMarginX);
-		int marginY = Utils.getPixelFromDp(getContext(), mMarginY);
 
+		mTileIds = getDisplayedTiles();
+		int count = mTileIds.size();
+		mGridY = Math.max(1, (count + mGridX - 1) / mGridX);
+
+		int marginX = Utils.getPixelFromDp(getContext(), mSetup.getMarginX());
+		int marginY = Utils.getPixelFromDp(getContext(), mSetup.getMarginY());
+
+		mContainer.removeAllViews();
 		mApplications = new ApplicationView[mGridY][mGridX];
 
 		int position = 0;
@@ -220,10 +238,14 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 			ll.setGravity(Gravity.TOP);
 			ll.setFocusable(false);
 			ll.setLayoutParams(new LinearLayout.LayoutParams(
-					LinearLayout.LayoutParams.MATCH_PARENT, 0, 1
+					LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT
 			));
 
 			for (int x = 0; x < mGridX; x++) {
+				if (position >= count) {
+					mApplications[y][x] = null;
+					continue;
+				}
 				ApplicationView av = new ApplicationView(getContext());
 				av.setOnClickListener(this);
 				av.setOnLongClickListener(this);
@@ -233,130 +255,165 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 						onLongClick(v);
 					}
 				});
-				av.setPosition(position++);
+				av.setPosition(position);
 				av.showName(mShowNames);
 				if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-					av.setId(0x00FFFFFF + position);
+					av.setId(0x00FFFFFF + position + 1);
 				} else {
 					av.setId(View.generateViewId());
 				}
-				LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.MATCH_PARENT, 1);
+				LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
 				lp.setMargins(x == 0 ? 0 : marginX, y == 0 ? 0 : marginY,
-						x + 1 == mGridX ? 0 : marginX, y + 1 == mGridY ? 0 : marginY);
+						x + 1 == mGridX ? 0 : marginX, marginY);
 				av.setLayoutParams(lp);
 				ll.addView(av);
 				mApplications[y][x] = av;
+				position++;
 			}
 			mContainer.addView(ll);
 		}
 
 		updateApplications();
 		setApplicationOrder();
+
+		if (focusPosition >= 0) {
+			focusPosition = Math.min(focusPosition, mTileIds.size() - 1);
+			focusPosition(focusPosition);
+		}
+	}
+
+	/**
+	 * Returns the tile identifiers displayed on the home screen:
+	 * the manually ordered tiles followed by all remaining
+	 * installed applications (sorted by name).
+	 */
+	private List<String> getDisplayedTiles() {
+		List<String> tiles = mSetup.getHomeTiles();
+		PackageManager pm = getActivity().getPackageManager();
+		Shortcuts shortcuts = new Shortcuts(getContext());
+		Folders folders = new Folders(getContext());
+		Protection protection = new Protection(getContext());
+		Set<String> removed = mSetup.getRemovedTiles();
+
+		boolean changed = false;
+		java.util.Iterator<String> it = tiles.iterator();
+		while (it.hasNext()) {
+			String id = it.next();
+			boolean valid;
+			if (TextUtils.isEmpty(id))
+				valid = false;
+			else if (Folders.isFolder(id))
+				valid = folders.get(id) != null;
+			else if (Shortcuts.isShortcut(id))
+				valid = shortcuts.get(id) != null;
+			else {
+				try {
+					pm.getPackageInfo(id, 0);
+					valid = true;
+				} catch (Exception e) {
+					valid = false;
+				}
+			}
+			if (!valid || removed.contains(id) || protection.isHidden(id)) {
+				it.remove();
+				changed = true;
+			}
+		}
+		if (changed)
+			mSetup.setHomeTiles(tiles);
+
+		List<AppInfo> apps = Utils.loadApplications(getContext());
+		for (AppInfo app : apps) {
+			if (!tiles.contains(app.getId()) && !removed.contains(app.getId()))
+				tiles.add(app.getId());
+		}
+		return tiles;
 	}
 
 	private void setApplicationOrder() {
 		for (int y = 0; y < mGridY; y++) {
 			for (int x = 0; x < mGridX; x++) {
-				int upId = x + 1 == mGridX ? R.id.settings : R.id.application_grid;
-				int downId = mSetup.showIp() ? R.id.ip_address : upId;
-				int leftId = R.id.application_grid;
-				int rightId = R.id.settings;
+				ApplicationView app = mApplications[y][x];
+				if (app == null)
+					continue;
 
-				if (y > 0)
+				int upId = R.id.settings;
+				if (y > 0 && mApplications[y - 1][x] != null)
 					upId = mApplications[y - 1][x].getId();
 
-				if (y + 1 < mGridY)
+				int downId = mSetup.showIp() ? R.id.ip_address : R.id.settings;
+				if (y + 1 < mGridY && mApplications[y + 1][x] != null)
 					downId = mApplications[y + 1][x].getId();
 
-				if (x > 0)
+				int leftId = R.id.settings;
+				if (x > 0 && mApplications[y][x - 1] != null)
 					leftId = mApplications[y][x - 1].getId();
-				else if (y > 0)
-					leftId = mApplications[y - 1][mGridX - 1].getId();
+				else if (y > 0) {
+					ApplicationView previous = lastTileOfRow(y - 1);
+					if (previous != null)
+						leftId = previous.getId();
+				}
 
-				if (x + 1 < mGridX)
+				int rightId = R.id.settings;
+				if (x + 1 < mGridX && mApplications[y][x + 1] != null)
 					rightId = mApplications[y][x + 1].getId();
-				else if (y + 1 < mGridY)
+				else if (y + 1 < mGridY && mApplications[y + 1][0] != null)
 					rightId = mApplications[y + 1][0].getId();
 
-				mApplications[y][x].setNextFocusLeftId(leftId);
-				mApplications[y][x].setNextFocusRightId(rightId);
-				mApplications[y][x].setNextFocusUpId(upId);
-				mApplications[y][x].setNextFocusDownId(downId);
+				app.setNextFocusLeftId(leftId);
+				app.setNextFocusRightId(rightId);
+				app.setNextFocusUpId(upId);
+				app.setNextFocusDownId(downId);
 			}
 		}
 
-		mGridView.setNextFocusLeftId(R.id.settings);
-		mGridView.setNextFocusRightId(R.id.settings);
-		mGridView.setNextFocusUpId(R.id.application_grid);
-		mGridView.setNextFocusDownId(mApplications[0][0].getId());
-
-		mIp.setNextFocusLeftId(mApplications[mGridY - 1][mGridX - 1].getId());
+		ApplicationView first = firstTileOfRow(0);
+		ApplicationView last = lastTileOfRow(mGridY - 1);
+		mIp.setNextFocusLeftId(last == null ? R.id.settings : last.getId());
 		mIp.setNextFocusRightId(R.id.settings);
-		mIp.setNextFocusUpId(mApplications[mGridY - 1][0].getId());
-		mIp.setNextFocusDownId(R.id.application_grid);
-		mSettings.setNextFocusLeftId(R.id.application_grid);
-		mSettings.setNextFocusRightId(R.id.application_grid);
+		mIp.setNextFocusUpId(first == null ? R.id.settings : first.getId());
+		mIp.setNextFocusDownId(R.id.settings);
+		mSettings.setNextFocusLeftId(R.id.settings);
+		mSettings.setNextFocusRightId(R.id.settings);
 		mSettings.setNextFocusUpId(R.id.settings);
-		mSettings.setNextFocusDownId(mApplications[0][mGridX - 1].getId());
+		mSettings.setNextFocusDownId(first == null ? R.id.settings : first.getId());
+	}
+
+	private ApplicationView firstTileOfRow(int y) {
+		if (y < 0 || y >= mGridY)
+			return null;
+		for (int x = 0; x < mGridX; x++) {
+			if (mApplications[y][x] != null)
+				return mApplications[y][x];
+		}
+		return null;
+	}
+
+	private ApplicationView lastTileOfRow(int y) {
+		if (y < 0 || y >= mGridY)
+			return null;
+		for (int x = mGridX - 1; x >= 0; x--) {
+			if (mApplications[y][x] != null)
+				return mApplications[y][x];
+		}
+		return null;
 	}
 
 
 	private void updateApplications() {
 		PackageManager pm = getActivity().getPackageManager();
-		SharedPreferences prefs = getActivity().getSharedPreferences(Setup.APPLICATIONS_NAME, Context.MODE_PRIVATE);
 
 		for (int y = 0; y < mGridY; y++) {
 			for (int x = 0; x < mGridX; x++) {
 				ApplicationView app = mApplications[y][x];
-				setApplication(pm, app, prefs.getString(app.getPreferenceKey(), null));
+				if (app == null)
+					continue;
+				String appId = app.getPosition() < mTileIds.size() ? mTileIds.get(app.getPosition()) : null;
+				setApplication(pm, app, appId);
 			}
 		}
 	}
 
-
-	private boolean hasGridChanged() {
-		return (mGridX != Math.max(2, mSetup.getGridX()) || mGridY != Math.max(1, mSetup.getGridY())
-				|| mMarginX != mSetup.getMarginX() || mMarginY != mSetup.getMarginY()
-				|| mShowNames != mSetup.showNames() || mDefaultTransparency != mSetup.isDefaultTransparency()
-				|| (!mDefaultTransparency && mTransparency != mSetup.getTransparency()));
-	}
-
-	private void updatePreferences() {
-		View focused = getView().findFocus();
-		int position = focused instanceof ApplicationView ? ((ApplicationView) focused).getPosition() : -1;
-		mContainer.setKeepScreenOn(mSetup.keepScreenOn());
-		mDate.setVisibility(mSetup.showDate() ? View.VISIBLE : View.GONE);
-		mBatteryLayout.setVisibility(mSetup.showBattery() ? View.VISIBLE : View.INVISIBLE);
-		mIp.setVisibility(mSetup.showIp() ? View.VISIBLE : View.GONE);
-		mNetworkIcon.setVisibility(mSetup.showNetwork() ? View.VISIBLE : View.GONE);
-		if (hasGridChanged())
-			createApplications();
-		else
-			setApplicationOrder();
-		if (position >= 0) {
-			position = Math.min(position, mGridX * mGridY - 1);
-			mApplications[position / mGridX][position % mGridX].requestFocus();
-		} else if (focused != null) {
-			if (focused.isShown())
-				focused.requestFocus();
-			else
-				mSettings.requestFocus();
-		}
-	}
-
-
-	private void writePreferences(int appNum, String appId) {
-		SharedPreferences prefs = getActivity().getSharedPreferences(Setup.APPLICATIONS_NAME, Context.MODE_PRIVATE);
-		SharedPreferences.Editor editor = prefs.edit();
-		String key = ApplicationView.getPreferenceKey(appNum);
-
-		if (TextUtils.isEmpty(appId))
-			editor.remove(key);
-		else
-			editor.putString(key, appId);
-
-		editor.apply();
-	}
 
 	private void setApplication(PackageManager pm, ApplicationView app, String appId) {
 		if (new Protection(getContext()).isHidden(appId))
@@ -430,15 +487,19 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 	@Override
 	public void onResume() {
 		super.onResume();
-		updatePreferences();
+		mContainer.setKeepScreenOn(mSetup.keepScreenOn());
+		mDate.setVisibility(mSetup.showDate() ? View.VISIBLE : View.GONE);
+		mBatteryLayout.setVisibility(mSetup.showBattery() ? View.VISIBLE : View.INVISIBLE);
+		mIp.setVisibility(mSetup.showIp() ? View.VISIBLE : View.GONE);
+		mNetworkIcon.setVisibility(mSetup.showNetwork() ? View.VISIBLE : View.GONE);
 		if (mSetup.showIp() || mSetup.showNetwork())
 			mNetwork.start();
 		else
 			mNetwork.stop();
-		mTimeFormat = android.text.format.DateFormat.getTimeFormat(getActivity());
+		updateTimeFormats();
 		mDateFormat = android.text.format.DateFormat.getLongDateFormat(getActivity());
 		setClock();
-		updateApplications();
+		rebuildHome();
 		getActivity().getSharedPreferences(Setup.APPLICATIONS_NAME, Context.MODE_PRIVATE)
 				.registerOnSharedPreferenceChangeListener(mShortcutChangedListener);
 		mShowingShortcut = false;
@@ -478,6 +539,20 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		super.onDestroyView();
 	}
 
+	/**
+	 * Clock format: follows the system setting by default, and can be
+	 * forced to 24-hour or 12-hour mode from the preferences.
+	 */
+	private void updateTimeFormats() {
+		String preference = mSetup.getTimeFormat();
+		if ("24".equals(preference))
+			mTimeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+		else if ("12".equals(preference))
+			mTimeFormat = new SimpleDateFormat("ah:mm", Locale.getDefault());
+		else
+			mTimeFormat = android.text.format.DateFormat.getTimeFormat(getActivity());
+	}
+
 	private void setClock() {
 		Date date = new Date(System.currentTimeMillis());
 		String time = mTimeFormat.format(date);
@@ -495,12 +570,103 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 			ApplicationView appView = (ApplicationView) v;
 			if (mSetup.iconsLocked()) {
 				Toast.makeText(getActivity(), R.string.home_locked, Toast.LENGTH_SHORT).show();
-			} else {
-				openApplicationList(ApplicationList.VIEW_LIST, appView.getPosition(), appView.hasApp(), REQUEST_CODE_APPLICATION_LIST);
+			} else if (appView.hasApp()) {
+				showApplicationMenu(appView);
 			}
 			return (true);
 		}
 		return (false);
+	}
+
+	/**
+	 * Popup menu shown when the menu key is pressed (or the tile is
+	 * long pressed) on a selected application.
+	 */
+	private void showApplicationMenu(final ApplicationView appView) {
+		final int position = appView.getPosition();
+		final String appId = appView.getAppId();
+		if (TextUtils.isEmpty(appId))
+			return;
+
+		boolean isPackage = !Folders.isFolder(appId) && !Shortcuts.isShortcut(appId);
+
+		final List<Integer> actions = new ArrayList<>();
+		List<String> labels = new ArrayList<>();
+
+		labels.add(getString(R.string.menu_open));
+		actions.add(MENU_OPEN);
+		if (position > 0) {
+			labels.add(getString(R.string.menu_move_up));
+			actions.add(MENU_MOVE_UP);
+		}
+		if (position < mTileIds.size() - 1) {
+			labels.add(getString(R.string.menu_move_down));
+			actions.add(MENU_MOVE_DOWN);
+		}
+		if (isPackage) {
+			labels.add(getString(R.string.menu_uninstall));
+			actions.add(MENU_UNINSTALL);
+			labels.add(getString(R.string.menu_app_info));
+			actions.add(MENU_APP_INFO);
+		}
+		labels.add(getString(R.string.menu_remove));
+		actions.add(MENU_REMOVE);
+
+		new AlertDialog.Builder(getActivity())
+				.setTitle(appView.getName())
+				.setItems(labels.toArray(new String[labels.size()]), new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						handleMenuAction(actions.get(which), appView, appId);
+					}
+				})
+				.show();
+	}
+
+	private void handleMenuAction(int action, ApplicationView appView, String appId) {
+		int position = appView.getPosition();
+		switch (action) {
+			case MENU_OPEN:
+				openApplication(appId, appView.getName());
+				break;
+			case MENU_MOVE_UP:
+			case MENU_MOVE_DOWN: {
+				int target = action == MENU_MOVE_UP ? position - 1 : position + 1;
+				if (target < 0 || target >= mTileIds.size())
+					break;
+				List<String> tiles = new ArrayList<>(mTileIds);
+				Collections.swap(tiles, position, target);
+				mSetup.setHomeTiles(tiles);
+				rebuildHome();
+				focusPosition(target);
+				break;
+			}
+			case MENU_UNINSTALL:
+				try {
+					Intent uninstall = new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + appId));
+					startActivity(uninstall);
+				} catch (Exception e) {
+					e.printStackTrace();
+					Toast.makeText(getActivity(), R.string.uninstall_unavailable, Toast.LENGTH_LONG).show();
+				}
+				break;
+			case MENU_APP_INFO:
+				try {
+					startActivity(new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+							Uri.parse("package:" + appId)));
+				} catch (Exception e) {
+					e.printStackTrace();
+					Toast.makeText(getActivity(), R.string.settings_unavailable, Toast.LENGTH_LONG).show();
+				}
+				break;
+			case MENU_REMOVE:
+				mSetup.addRemovedTile(appId);
+				mSetup.removeHomeTile(appId);
+				rebuildHome();
+				break;
+			default:
+				break;
+		}
 	}
 
 	@Override
@@ -513,8 +679,6 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		int id = v.getId();
 		if (id == R.id.ip_address) {
 			mNetwork.showDetails();
-		} else if (id == R.id.application_grid) {
-			openApplicationList(ApplicationList.VIEW_GRID, 0, false, REQUEST_CODE_APPLICATION_START);
 		} else if (id == R.id.settings) {
 			startActivity(new Intent(getContext(), Preferences.class));
 		}
@@ -522,14 +686,8 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 	}
 
 	private void openApplication(ApplicationView v) {
-		if (v.hasApp() == false) {
-			if (mSetup.iconsLocked()) {
-				Toast.makeText(getActivity(), R.string.home_locked, Toast.LENGTH_SHORT).show();
-			} else {
-				openApplicationList(ApplicationList.VIEW_LIST, v.getPosition(), false, REQUEST_CODE_APPLICATION_LIST);
-			}
+		if (v.hasApp() == false)
 			return;
-		}
 
 		openApplication(v.getAppId(), v.getName());
 	}
@@ -572,47 +730,14 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		}
 	}
 
-	private void openApplicationList(int viewType, int appNum, boolean showDelete, int requestCode) {
-		Intent intent = new Intent(getActivity(), ApplicationList.class);
-		intent.putExtra(ApplicationList.APPLICATION_NUMBER, appNum);
-		intent.putExtra(ApplicationList.VIEW_TYPE, viewType);
-		intent.putExtra(ApplicationList.SHOW_DELETE, showDelete);
-		intent.putExtra(ApplicationList.CREATE_FOLDER, requestCode == REQUEST_CODE_APPLICATION_LIST);
-		startActivityForResult(intent, requestCode);
-	}
-	
-
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent intent) {
 		super.onActivityResult(requestCode, resultCode, intent);
-		switch (requestCode) {
-			case REQUEST_CODE_UNLOCK:
-				if (resultCode == Activity.RESULT_OK && intent != null) {
-					String id = intent.getStringExtra(ApplicationList.APP_ID);
-					launchApplication(id, id);
-				}
-				break;
-			case REQUEST_CODE_WALLPAPER:
-				break;
-			case REQUEST_CODE_APPLICATION_START:
-				if (intent != null)
-					openApplication(intent.getExtras().getString(ApplicationList.APP_ID));
-				break;
-			case REQUEST_CODE_APPLICATION_LIST:
-				if (resultCode == Activity.RESULT_OK) {
-					Bundle extra = intent.getExtras();
-					int appNum = intent.getExtras().getInt(ApplicationList.APPLICATION_NUMBER);
-
-					if (extra.containsKey(ApplicationList.DELETE) && extra.getBoolean(ApplicationList.DELETE)) {
-						writePreferences(appNum, null);
-					} else {
-						writePreferences(appNum,
-								intent.getExtras().getString(ApplicationList.APP_ID)
-						);
-					}
-					updateApplications();
-				}
-				break;
+		if (requestCode == REQUEST_CODE_UNLOCK) {
+			if (resultCode == Activity.RESULT_OK && intent != null) {
+				String id = intent.getStringExtra(ApplicationList.APP_ID);
+				openApplication(id, id);
+			}
 		}
 	}
 

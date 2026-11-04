@@ -181,13 +181,12 @@ public class Shortcuts {
 	}
 
 	private boolean save(String pending, JSONObject record) {
-		int position = findEmpty();
-		if (new Setup(mContext).iconsLocked() || position < 0)
+		if (new Setup(mContext).iconsLocked())
 			return (false);
 		String id = PREFIX + UUID.randomUUID();
 		SharedPreferences.Editor editor = mPreferences.edit();
 		editor.putString(id, record.toString());
-		editor.putString(ApplicationView.getPreferenceKey(position), id);
+		new Setup(mContext).addHomeTile(id);
 		if (pending != null)
 			editor.remove(pending);
 		return (editor.commit());

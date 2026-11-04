@@ -65,6 +65,7 @@ public class Preferences extends PreferenceActivity {
 	public static final String PREFERENCE_MARGIN_X = "preference_margin_x";
 	public static final String PREFERENCE_MARGIN_Y = "preference_margin_y";
 	public static final String PREFERENCE_LOCKED = "preference_locked";
+	public static final String PREFERENCE_TIME_FORMAT = "preference_time_format";
 	private static final String PREFERENCE_GITHUB = "preference_github";
 	private static final String PREFERENCE_PRIVACY = "preference_privacy";
 	private static final String PREFERENCE_ABOUT = "preference_about";
@@ -134,7 +135,6 @@ public class Preferences extends PreferenceActivity {
 			}
 		});
 		bindSummary(PREFERENCE_GRID_X, R.string.summary_grid_x);
-		bindSummary(PREFERENCE_GRID_Y, R.string.summary_grid_y);
 		bindSummary(PREFERENCE_MARGIN_X, R.string.summary_margin_x);
 		bindSummary(PREFERENCE_MARGIN_Y, R.string.summary_margin_y);
 
@@ -202,7 +202,8 @@ public class Preferences extends PreferenceActivity {
 			e.printStackTrace();
 		}
 
-		findPreference(PREFERENCE_ABOUT).setTitle(getString(R.string.app_name) + " version " + version);
+		findPreference(PREFERENCE_ABOUT).setTitle(getString(R.string.version_format,
+				getString(R.string.app_name), version));
 		findPreference(PREFERENCE_ABOUT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {

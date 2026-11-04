@@ -23,7 +23,12 @@ import android.preference.PreferenceManager;
 import android.text.TextUtils;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
+import org.json.JSONArray;
 import org.cosinus.launchertv.views.ApplicationView;
 
 import org.cosinus.launchertv.activities.Preferences;
@@ -34,7 +39,10 @@ import static org.cosinus.launchertv.activities.Preferences.PREFERENCE_TRANSPARE
 
 public class Setup {
 	public static final String APPLICATIONS_NAME = "applications";
+	public static final String HOME_TILES = "home_tiles";
+	public static final String HOME_REMOVED = "home_removed";
 	private static final String DEFAULTS_INITIALIZED = "defaults_initialized";
+	private static final String MIGRATED = "tiles_migrated";
 	private static final int DEFAULT_GRID_X = 3;
 	private static final int DEFAULT_GRID_Y = 2;
 	private static final int DEFAULT_MARGIN_X = 5;
@@ -48,10 +56,26 @@ public class Setup {
 	}
 
 	public void initializeApplications() {
+		SharedPreferences preferences = mContext.getSharedPreferences(APPLICATIONS_NAME, Context.MODE_PRIVATE);
+
+		// Migrate the legacy application_NN slots to the ordered home tile list.
+		if (!preferences.getBoolean(MIGRATED, false)) {
+			List<String> tiles = getHomeTiles();
+			for (int position = 0; position < 500; position++) {
+				String value = preferences.getString(ApplicationView.getPreferenceKey(position), null);
+				if (TextUtils.isEmpty(value))
+					continue;
+				if (!tiles.contains(value))
+					tiles.add(value);
+			}
+			if (!tiles.isEmpty())
+				setHomeTiles(tiles);
+			preferences.edit().putBoolean(MIGRATED, true).apply();
+		}
+
 		// Un ancien accueil vidé volontairement possède encore son fichier de préférences.
 		File file = new File(mContext.getApplicationInfo().dataDir, "shared_prefs/" + APPLICATIONS_NAME + ".xml");
 		boolean configured = file.exists();
-		SharedPreferences preferences = mContext.getSharedPreferences(APPLICATIONS_NAME, Context.MODE_PRIVATE);
 		if (preferences.getBoolean(DEFAULTS_INITIALIZED, false))
 			return;
 		SharedPreferences.Editor editor = preferences.edit();
@@ -61,10 +85,80 @@ public class Setup {
 			for (int position = 0; position < count; position++) {
 				String packageName = applications[position].trim();
 				if (!TextUtils.isEmpty(packageName))
-					editor.putString(ApplicationView.getPreferenceKey(position), packageName);
+					addHomeTile(packageName);
 			}
 		}
 		editor.putBoolean(DEFAULTS_INITIALIZED, true).commit();
+	}
+
+	private SharedPreferences getApplicationPreferences() {
+		return mContext.getSharedPreferences(APPLICATIONS_NAME, Context.MODE_PRIVATE);
+	}
+
+	public List<String> getHomeTiles() {
+		List<String> tiles = new ArrayList<>();
+		try {
+			String raw = getApplicationPreferences().getString(HOME_TILES, null);
+			if (!TextUtils.isEmpty(raw)) {
+				JSONArray array = new JSONArray(raw);
+				for (int i = 0; i < array.length(); i++) {
+					String value = array.optString(i, null);
+					if (!TextUtils.isEmpty(value))
+						tiles.add(value);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return tiles;
+	}
+
+	public void setHomeTiles(List<String> tiles) {
+		try {
+			getApplicationPreferences().edit()
+					.putString(HOME_TILES, new JSONArray(tiles).toString()).apply();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void addHomeTile(String id) {
+		if (TextUtils.isEmpty(id))
+			return;
+		List<String> tiles = getHomeTiles();
+		if (tiles.contains(id))
+			return;
+		tiles.add(id);
+		setHomeTiles(tiles);
+	}
+
+	public void removeHomeTile(String id) {
+		List<String> tiles = getHomeTiles();
+		if (tiles.remove(id))
+			setHomeTiles(tiles);
+	}
+
+	public Set<String> getRemovedTiles() {
+		return new HashSet<>(getApplicationPreferences().getStringSet(HOME_REMOVED, new HashSet<String>()));
+	}
+
+	public void addRemovedTile(String id) {
+		if (TextUtils.isEmpty(id))
+			return;
+		Set<String> removed = getRemovedTiles();
+		removed.add(id);
+		getApplicationPreferences().edit().putStringSet(HOME_REMOVED, removed).apply();
+	}
+
+	public String getTimeFormat() {
+		try {
+			String value = getPreferences().getString(Preferences.PREFERENCE_TIME_FORMAT, null);
+			if (!TextUtils.isEmpty(value))
+				return value;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return "system";
 	}
 
 	private SharedPreferences getPreferences() {

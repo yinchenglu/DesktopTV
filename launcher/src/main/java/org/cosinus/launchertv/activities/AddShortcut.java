@@ -111,10 +111,6 @@ public class AddShortcut extends Activity implements DialogInterface.OnClickList
 			Toast.makeText(this, R.string.home_locked, Toast.LENGTH_LONG).show();
 			return (false);
 		}
-		if (new Shortcuts(this).findEmpty() < 0) {
-			Toast.makeText(this, R.string.no_empty_tile, Toast.LENGTH_LONG).show();
-			return (false);
-		}
 		return (true);
 	}
 
