@@ -46,7 +46,10 @@ jobs:
           packages: 'platform-tools platforms;android-37.0 build-tools;37.0.0'
 
       - name: Build release APK
-        run: ./gradlew --no-daemon assembleRelease
+        run: |
+          set -o pipefail
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleRelease 2>&1 | tee build.log
 
       - name: Sign APK
         env:
@@ -87,13 +90,17 @@ jobs:
         if: failure()
         run: |
           set -e
+          if [ ! -f build.log ]; then
+            echo "no build log captured" > build.log
+          fi
           git config user.name "launchertv-ci"
           git config user.email "ci@users.noreply.github.com"
           git checkout -B ci-log
-          ./gradlew --no-daemon assembleRelease > ci-build.log 2>&1 || true
+          cp build.log ci-build.log
           git add -f ci-build.log
           git commit -m "ci: build log" || exit 0
-          git push -f origin ci-log
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-log
+          echo "log pushed to ci-log branch"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
