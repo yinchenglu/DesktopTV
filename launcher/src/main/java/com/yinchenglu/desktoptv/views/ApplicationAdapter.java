@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.cosinus.launchertv.views;
+package com.yinchenglu.desktoptv.views;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -25,8 +25,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.cosinus.launchertv.AppInfo;
-import org.cosinus.launchertv.R;
+import com.yinchenglu.desktoptv.AppInfo;
+import com.yinchenglu.desktoptv.R;
 
 public class ApplicationAdapter extends ArrayAdapter<AppInfo> {
 	private final int mResource;

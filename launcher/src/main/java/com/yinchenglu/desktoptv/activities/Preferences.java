@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.cosinus.launchertv.activities;
+package com.yinchenglu.desktoptv.activities;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -37,11 +37,11 @@ import android.preference.PreferenceActivity;
 import android.provider.Settings;
 import android.widget.Toast;
 
-import org.cosinus.launchertv.R;
-import org.cosinus.launchertv.Background;
-import org.cosinus.launchertv.HomeImage;
-import org.cosinus.launchertv.Protection;
-import org.cosinus.launchertv.Setup;
+import com.yinchenglu.desktoptv.R;
+import com.yinchenglu.desktoptv.Background;
+import com.yinchenglu.desktoptv.HomeImage;
+import com.yinchenglu.desktoptv.Protection;
+import com.yinchenglu.desktoptv.Setup;
 
 import java.util.Locale;
 import java.io.File;
@@ -208,7 +208,7 @@ public class Preferences extends PreferenceActivity {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
 				try {
-					startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=org.cosinus.launchertv")));
+					startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.yinchenglu.desktoptv")));
 				} catch (Exception e) {
 					e.printStackTrace();
 					Toast.makeText(getApplicationContext(),

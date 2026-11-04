@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.cosinus.launchertv;
+package com.yinchenglu.desktoptv;
 
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -34,7 +34,7 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
 
-import org.cosinus.launchertv.views.ApplicationView;
+import com.yinchenglu.desktoptv.views.ApplicationView;
 import org.json.JSONException;
 import org.json.JSONObject;
 

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.cosinus.launchertv;
+package com.yinchenglu.desktoptv;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -29,12 +29,12 @@ import java.util.List;
 import java.util.Set;
 
 import org.json.JSONArray;
-import org.cosinus.launchertv.views.ApplicationView;
+import com.yinchenglu.desktoptv.views.ApplicationView;
 
-import org.cosinus.launchertv.activities.Preferences;
+import com.yinchenglu.desktoptv.activities.Preferences;
 
-import static org.cosinus.launchertv.activities.Preferences.PREFERENCE_DEFAULT_TRANSPARENCY;
-import static org.cosinus.launchertv.activities.Preferences.PREFERENCE_TRANSPARENCY;
+import static com.yinchenglu.desktoptv.activities.Preferences.PREFERENCE_DEFAULT_TRANSPARENCY;
+import static com.yinchenglu.desktoptv.activities.Preferences.PREFERENCE_TRANSPARENCY;
 
 
 public class Setup {

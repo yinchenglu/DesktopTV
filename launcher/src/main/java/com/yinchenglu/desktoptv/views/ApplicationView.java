@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.cosinus.launchertv.views;
+package com.yinchenglu.desktoptv.views;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -34,8 +34,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import org.cosinus.launchertv.R;
-import org.cosinus.launchertv.Setup;
+import com.yinchenglu.desktoptv.R;
+import com.yinchenglu.desktoptv.Setup;
 
 import java.util.Locale;
 

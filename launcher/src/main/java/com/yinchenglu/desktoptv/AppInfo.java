@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.cosinus.launchertv;
+package com.yinchenglu.desktoptv;
 
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;

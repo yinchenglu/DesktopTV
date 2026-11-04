@@ -30,7 +30,7 @@ tasks.register('checkstyle', Checkstyle) {
     configProperties.checkstyleSuppressionsPath = file("${project.rootDir}/style/suppressions.xml").absolutePath
 
     source 'src/main/java'
-    include 'org/cosinus/**/*.java'
+    include 'com/yinchenglu/**/*.java'
     exclude '**/gen/**'
 
     def configProps = ['proj.module.dir': projectDir.absolutePath]
@@ -40,7 +40,7 @@ tasks.register('checkstyle', Checkstyle) {
 }
 
 android {
-    namespace 'org.cosinus.launchertv'
+    namespace 'com.yinchenglu.desktoptv'
     compileSdk 37
     buildToolsVersion '37.0.0'
 
@@ -55,11 +55,11 @@ android {
     }
 
     defaultConfig {
-        applicationId "org.cosinus.launchertv"
+        applicationId "com.yinchenglu.desktoptv"
         minSdkVersion 14
         targetSdkVersion 37
-        versionCode 210
-        versionName "2.1.0"
+        versionCode 220
+        versionName "2.2.0"
     }
 
     signingConfigs {

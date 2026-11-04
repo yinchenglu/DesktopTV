@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.cosinus.launchertv;
+package com.yinchenglu.desktoptv;
 
 import android.os.Build;
 import android.os.Bundle;
@@ -24,7 +24,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
-import org.cosinus.launchertv.fragments.ApplicationFragment;
+import com.yinchenglu.desktoptv.fragments.ApplicationFragment;
 
 public class Launcher extends FragmentActivity {
 	private HomeImage mHomeImage;

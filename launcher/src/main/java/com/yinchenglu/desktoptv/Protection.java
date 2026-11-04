@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.cosinus.launchertv;
+package com.yinchenglu.desktoptv;
 
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Base64;
 
-import org.cosinus.launchertv.activities.Unlock;
-import org.cosinus.launchertv.activities.ApplicationList;
+import com.yinchenglu.desktoptv.activities.Unlock;
+import com.yinchenglu.desktoptv.activities.ApplicationList;
 
 import java.io.DataInputStream;
 import java.io.FileInputStream;

@@ -1,9 +1,13 @@
-[![APK release](https://github.com/yinchenglu/LauncherTV/actions/workflows/release.yml/badge.svg)](https://github.com/yinchenglu/LauncherTV/actions/workflows/release.yml)
+[![APK release](https://github.com/yinchenglu/desktopTV/actions/workflows/release.yml/badge.svg)](https://github.com/yinchenglu/desktopTV/actions/workflows/release.yml)
 
-# LauncherTV 增强版（Simple TV Launcher 中文定制版）
+# DesktopTV（电视桌面 · 中文增强版）
 
 基于开源项目 [alescdb/LauncherTV](https://github.com/alescdb/LauncherTV)（Simple TV Launcher 2.0.2）
 的中文定制版本，面向 Android 电视盒子（兼容 Android 4.0+），遥控器友好。
+
+- 应用名：**桌面TV**（简体/繁体中文） / **DesktopTV**（其他语言）
+- 包名：`com.yinchenglu.desktoptv`
+- 与上游 LauncherTV（`org.cosinus.launchertv`）**包名不同，可同时安装在同一个盒子上**。
 
 ## 本版本新增/修改的功能
 
@@ -17,10 +21,20 @@
 
 ## 下载安装
 
-到 [Releases](https://github.com/yinchenglu/LauncherTV/releases) 下载
-`LauncherTV-x.x.x.apk`，用 U 盘或局域网传到电视盒子安装即可。
+到 [Releases](https://github.com/yinchenglu/desktopTV/releases) 下载
+`DesktopTV-x.x.x.apk`，用 U 盘或局域网传到电视盒子安装即可。
 
-> 注意：与 Google Play 原版签名不同。如果盒子上装过原版，需先卸载原版再安装。
+> 因为包名与上游不同，本应用和原版 LauncherTV 可以共存；
+> 但和本仓库自己旧版本的 APK 升级时仍需注意签名是否一致（见下）。
+
+## 与 LauncherTV 共存说明
+
+| | 包名 | 应用名 | 可否共存 |
+|---|---|---|---|
+| 上游 Simple TV Launcher | `org.cosinus.launchertv` | Simple TV Launcher | — |
+| 本仓库 | `com.yinchenglu.desktoptv` | 桌面TV / DesktopTV | ✅ 可同时安装 |
+
+两个桌面同时装好后，在 Android 设置 → 主屏幕 里选择用哪个当默认桌面。
 
 ## 构建
 

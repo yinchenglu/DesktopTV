@@ -93,7 +93,7 @@
 			android:key="preference_default_transparency"
 			android:summary="@string/summary_default_transparency"
 			android:title="@string/title_default_transparency"/>
-		<org.cosinus.launchertv.views.SliderPreference
+		<com.yinchenglu.desktoptv.views.SliderPreference
 			android:defaultValue="@string/transparency_default"
 			android:dialogMessage="@string/title_transparency"
 			android:key="preference_transparency"

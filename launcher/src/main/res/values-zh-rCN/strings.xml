@@ -105,7 +105,7 @@
 	<string name="ip_unavailable">没有可用的 IP 地址</string>
 	<string name="network_unavailable">网络信息不可用</string>
 	<string name="choose_home_image">选择桌面图片</string>
-	<string name="summary_choose_home_image">为 LauncherTV 单独选择一张图片（最大 32 MB），并启用桌面图片。</string>
+	<string name="summary_choose_home_image">为 DesktopTV 单独选择一张图片（最大 32 MB），并启用桌面图片。</string>
 	<string name="use_home_image">使用桌面图片</string>
 	<string name="summary_home_image">关闭后重新显示 Android 壁纸，Android 壁纸本身不会被修改。</string>
 	<string name="image_scale">桌面图片缩放方式</string>
@@ -120,7 +120,7 @@
 	<string name="network_ethernet">以太网已连接</string>
 	<string name="network_other">已连接其他网络</string>
 	<string name="title_home">默认桌面应用</string>
-	<string name="summary_home">在 Android 设置中将 LauncherTV 设为默认桌面。</string>
+	<string name="summary_home">在 Android 设置中将 DesktopTV 设为默认桌面。</string>
 	<string name="home_settings_unavailable">无法打开桌面选择页，已打开 Android 设置。</string>
 	<string name="title_privacy">隐私政策</string>
 	<string name="version_format">%1$s 版本 %2$s</string>
@@ -136,4 +136,5 @@
 	<string name="menu_app_info">应用信息</string>
 	<string name="menu_remove">从桌面移除</string>
 	<string name="uninstall_unavailable">此设备无法卸载应用</string>
+	<string name="app_name">桌面TV</string>
 </resources>

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.cosinus.launchertv.activities;
+package com.yinchenglu.desktoptv.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -25,12 +25,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import org.cosinus.launchertv.AppInfo;
-import org.cosinus.launchertv.PinShortcut;
-import org.cosinus.launchertv.R;
-import org.cosinus.launchertv.Protection;
-import org.cosinus.launchertv.Setup;
-import org.cosinus.launchertv.Shortcuts;
+import com.yinchenglu.desktoptv.AppInfo;
+import com.yinchenglu.desktoptv.PinShortcut;
+import com.yinchenglu.desktoptv.R;
+import com.yinchenglu.desktoptv.Protection;
+import com.yinchenglu.desktoptv.Setup;
+import com.yinchenglu.desktoptv.Shortcuts;
 
 public class AddShortcut extends Activity implements DialogInterface.OnClickListener {
 	public static final String SHORTCUT_ID = "shortcut_id";

@@ -1,7 +1,7 @@
 <component name="CopyrightManager">
-  <settings default="LauncherTV">
+  <settings default="DesktopTV">
     <module2copyright>
-      <element module="All" copyright="LauncherTV" />
+      <element module="All" copyright="DesktopTV" />
     </module2copyright>
   </settings>
 </component>

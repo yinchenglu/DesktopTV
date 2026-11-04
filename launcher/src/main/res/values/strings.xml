@@ -106,7 +106,7 @@
 	<string name="ip_unavailable">No IP address available</string>
 	<string name="network_unavailable">Network information unavailable</string>
 	<string name="choose_home_image">Choose home image</string>
-	<string name="summary_choose_home_image">Choose an image for LauncherTV only (up to 32 MB). Enables the home image.</string>
+	<string name="summary_choose_home_image">Choose an image for DesktopTV only (up to 32 MB). Enables the home image.</string>
 	<string name="use_home_image">Use home image</string>
 	<string name="summary_home_image">Turn off to show the Android wallpaper again. The Android wallpaper is unchanged.</string>
 	<string name="image_scale">Home image scaling</string>
@@ -125,7 +125,7 @@
 	<string name="network_ethernet">Ethernet connected</string>
 	<string name="network_other">Other network connected</string>
 	<string name="title_home">Default home app</string>
-	<string name="summary_home">Choose LauncherTV as the default home screen in Android settings.</string>
+	<string name="summary_home">Choose DesktopTV as the default home screen in Android settings.</string>
 	<string name="home_settings_unavailable">Home selection is unavailable. Opened Android settings.</string>
 	<string name="title_privacy">Privacy policy</string>
 	<string name="version_format">%1$s version %2$s</string>

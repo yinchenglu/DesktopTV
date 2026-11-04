@@ -105,7 +105,7 @@
 	<string name="ip_unavailable">Aucune adresse IP disponible</string>
 	<string name="network_unavailable">Informations réseau indisponibles</string>
 	<string name="choose_home_image">Choisir une image d’accueil</string>
-	<string name="summary_choose_home_image">Choisir une image pour LauncherTV uniquement (32 Mo maximum). Active l’image d’accueil.</string>
+	<string name="summary_choose_home_image">Choisir une image pour DesktopTV uniquement (32 Mo maximum). Active l’image d’accueil.</string>
 	<string name="use_home_image">Utiliser l’image d’accueil</string>
 	<string name="summary_home_image">Désactiver pour retrouver le fond Android. Le fond Android reste inchangé.</string>
 	<string name="image_scale">Cadrage de l’image d’accueil</string>
@@ -124,7 +124,7 @@
 	<string name="network_ethernet">Ethernet connecté</string>
 	<string name="network_other">Autre réseau connecté</string>
 	<string name="title_home">Accueil par défaut</string>
-	<string name="summary_home">Choisir LauncherTV comme accueil par défaut dans les réglages Android.</string>
+	<string name="summary_home">Choisir DesktopTV comme accueil par défaut dans les réglages Android.</string>
 	<string name="home_settings_unavailable">Le choix de l’accueil est indisponible. Les réglages Android ont été ouverts.</string>
 	<string name="title_privacy">Politique de confidentialité</string>
 </resources>

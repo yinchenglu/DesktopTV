@@ -66,24 +66,24 @@ jobs:
             alias="$ANDROID_KEY_ALIAS"
             echo "SIGN_NOTE=✅ 已用固定密钥签名，可直接覆盖安装" >> "$GITHUB_ENV"
           else
-            pass=launchertv
-            alias=launchertv
+            pass=desktoptv
+            alias=desktoptv
             keytool -genkeypair -keystore "$key" -storepass "$pass" -keypass "$pass" \
               -alias "$alias" -keyalg RSA -keysize 2048 -validity 10950 \
-              -dname "CN=LauncherTV, OU=LauncherTV, O=LauncherTV, L=Beijing, ST=Beijing, C=CN"
+              -dname "CN=DesktopTV, OU=DesktopTV, O=DesktopTV, L=Beijing, ST=Beijing, C=CN"
             echo "SIGN_NOTE=⚠️ 本次 APK 用 CI 临时密钥签名，升级安装需先卸载旧版" >> "$GITHUB_ENV"
           fi
           tools="$ANDROID_HOME/build-tools/37.0.0"
           dist=launcher/build/distribution
           mkdir -p "$dist"
-          apk="$dist/LauncherTV-$VERSION.apk"
+          apk="$dist/DesktopTV-$VERSION.apk"
           "$tools/apksigner" sign --ks "$key" --ks-key-alias "$alias" \
             --ks-pass pass:"$pass" --key-pass pass:"$pass" \
             --out "$apk" launcher/build/outputs/apk/release/launcher-release-unsigned.apk
           "$tools/apksigner" verify "$apk"
           rm -f "$key"
           cd "$dist"
-          sha256sum "LauncherTV-$VERSION.apk" > "LauncherTV-$VERSION.apk.sha256"
+          sha256sum "DesktopTV-$VERSION.apk" > "DesktopTV-$VERSION.apk.sha256"
           ls -la
 
       - name: Save build log on failure
@@ -93,7 +93,7 @@ jobs:
           if [ ! -f build.log ]; then
             echo "no build log captured" > build.log
           fi
-          git config user.name "launchertv-ci"
+          git config user.name "desktoptv-ci"
           git config user.email "ci@users.noreply.github.com"
           git checkout -B ci-log
           cp build.log ci-build.log
@@ -105,10 +105,10 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: LauncherTV-${{ env.VERSION }}
+          name: DesktopTV-${{ env.VERSION }}
           path: |
-            launcher/build/distribution/LauncherTV-${{ env.VERSION }}.apk
-            launcher/build/distribution/LauncherTV-${{ env.VERSION }}.apk.sha256
+            launcher/build/distribution/DesktopTV-${{ env.VERSION }}.apk
+            launcher/build/distribution/DesktopTV-${{ env.VERSION }}.apk.sha256
           if-no-files-found: error
 
       - name: Publish GitHub release
@@ -119,6 +119,6 @@ jobs:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           gh release create "$RELEASE_TAG" \
-            "launcher/build/distribution/LauncherTV-$VERSION.apk" \
-            "launcher/build/distribution/LauncherTV-$VERSION.apk.sha256" \
-            --verify-tag --title "LauncherTV $VERSION" --notes "${SIGN_NOTE:-}"
+            "launcher/build/distribution/DesktopTV-$VERSION.apk" \
+            "launcher/build/distribution/DesktopTV-$VERSION.apk.sha256" \
+            --verify-tag --title "DesktopTV $VERSION" --notes "${SIGN_NOTE:-}"

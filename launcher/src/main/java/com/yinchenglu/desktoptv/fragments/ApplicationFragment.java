@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.cosinus.launchertv.fragments;
+package com.yinchenglu.desktoptv.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -44,19 +44,19 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.cosinus.launchertv.AppInfo;
-import org.cosinus.launchertv.R;
-import org.cosinus.launchertv.Setup;
-import org.cosinus.launchertv.Network;
-import org.cosinus.launchertv.Shortcuts;
-import org.cosinus.launchertv.Folders;
-import org.cosinus.launchertv.Protection;
-import org.cosinus.launchertv.Utils;
-import org.cosinus.launchertv.activities.Folder;
-import org.cosinus.launchertv.activities.ApplicationList;
-import org.cosinus.launchertv.activities.Preferences;
-import org.cosinus.launchertv.activities.AddShortcut;
-import org.cosinus.launchertv.views.ApplicationView;
+import com.yinchenglu.desktoptv.AppInfo;
+import com.yinchenglu.desktoptv.R;
+import com.yinchenglu.desktoptv.Setup;
+import com.yinchenglu.desktoptv.Network;
+import com.yinchenglu.desktoptv.Shortcuts;
+import com.yinchenglu.desktoptv.Folders;
+import com.yinchenglu.desktoptv.Protection;
+import com.yinchenglu.desktoptv.Utils;
+import com.yinchenglu.desktoptv.activities.Folder;
+import com.yinchenglu.desktoptv.activities.ApplicationList;
+import com.yinchenglu.desktoptv.activities.Preferences;
+import com.yinchenglu.desktoptv.activities.AddShortcut;
+import com.yinchenglu.desktoptv.views.ApplicationView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

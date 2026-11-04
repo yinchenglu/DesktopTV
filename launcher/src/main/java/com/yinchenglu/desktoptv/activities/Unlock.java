@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.cosinus.launchertv.activities;
+package com.yinchenglu.desktoptv.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -29,8 +29,8 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
 
-import org.cosinus.launchertv.Protection;
-import org.cosinus.launchertv.R;
+import com.yinchenglu.desktoptv.Protection;
+import com.yinchenglu.desktoptv.R;
 
 import java.util.Arrays;
 

@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.cosinus.launchertv.receivers;
+package com.yinchenglu.desktoptv.receivers;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.widget.Toast;
 
-import org.cosinus.launchertv.R;
-import org.cosinus.launchertv.Shortcuts;
+import com.yinchenglu.desktoptv.R;
+import com.yinchenglu.desktoptv.Shortcuts;
 
 public class ShortcutReceiver extends BroadcastReceiver {
 	private static final String ACTION_INSTALL = "com.android.launcher.action.INSTALL_SHORTCUT";

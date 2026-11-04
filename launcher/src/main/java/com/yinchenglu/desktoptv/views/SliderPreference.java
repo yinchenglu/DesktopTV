@@ -1,4 +1,4 @@
-package org.cosinus.launchertv.views;
+package com.yinchenglu.desktoptv.views;
 
 /*
  * Copyright 2012 Jay Weisskopf
@@ -14,7 +14,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.SeekBar;
 
-import org.cosinus.launchertv.R;
+import com.yinchenglu.desktoptv.R;
 
 /**
  * @author Jay Weisskopf
