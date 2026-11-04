@@ -66,9 +66,8 @@ public class Preferences extends PreferenceActivity {
 	public static final String PREFERENCE_MARGIN_Y = "preference_margin_y";
 	public static final String PREFERENCE_LOCKED = "preference_locked";
 	public static final String PREFERENCE_TIME_FORMAT = "preference_time_format";
-	private static final String PREFERENCE_GITHUB = "preference_github";
-	private static final String PREFERENCE_PRIVACY = "preference_privacy";
 	private static final String PREFERENCE_ABOUT = "preference_about";
+	private static final String PREFERENCE_HIDDEN_APPS = "preference_hidden_apps";
 	private static final String PREFERENCE_SCREENSAVER = "preference_screensaver";
 	private static final int REQUEST_UNLOCK = 100;
 	private static final int REQUEST_IMAGE = 101;
@@ -95,10 +94,10 @@ public class Preferences extends PreferenceActivity {
 		Setup setup = new Setup(this);
 		addPreferencesFromResource(R.xml.preferences);
 
-		findPreference("preference_protection").setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+		findPreference(PREFERENCE_HIDDEN_APPS).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
-				startActivity(new Intent(Preferences.this, ProtectionSettings.class));
+				startActivity(new Intent(Preferences.this, HiddenApps.class));
 				return (true);
 			}
 		});
@@ -170,29 +169,6 @@ public class Preferences extends PreferenceActivity {
 			}
 		});
 
-		findPreference(PREFERENCE_GITHUB).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				try {
-					startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/alescdb/LauncherTV")));
-				} catch (Exception e) {
-					e.printStackTrace();
-					Toast.makeText(getApplicationContext(),
-							String.format(getString(R.string.error_opening_link), "Github", e.getMessage()),
-							Toast.LENGTH_LONG).show();
-				}
-				return (true);
-			}
-		});
-
-		findPreference(PREFERENCE_PRIVACY).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				openPrivacy();
-				return (true);
-			}
-		});
-
 		PackageInfo pInfo;
 		String version = "#Err";
 		try {
@@ -202,32 +178,7 @@ public class Preferences extends PreferenceActivity {
 			e.printStackTrace();
 		}
 
-		findPreference(PREFERENCE_ABOUT).setTitle(getString(R.string.version_format,
-				getString(R.string.app_name), version));
-		findPreference(PREFERENCE_ABOUT).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-			@Override
-			public boolean onPreferenceClick(Preference preference) {
-				try {
-					startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.yinchenglu.desktoptv")));
-				} catch (Exception e) {
-					e.printStackTrace();
-					Toast.makeText(getApplicationContext(),
-							String.format(getString(R.string.error_opening_link), "Play Store", e.getMessage()),
-							Toast.LENGTH_LONG).show();
-				}
-				return (true);
-			}
-		});
-	}
-
-	private void openPrivacy() {
-		try {
-			startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(getString(R.string.privacy_url))));
-		} catch (Exception e) {
-			e.printStackTrace();
-			Toast.makeText(this, String.format(getString(R.string.error_opening_link),
-					getString(R.string.title_privacy), e.getMessage()), Toast.LENGTH_LONG).show();
-		}
+		findPreference(PREFERENCE_ABOUT).setTitle(getString(R.string.version_label, version));
 	}
 
 	@Override

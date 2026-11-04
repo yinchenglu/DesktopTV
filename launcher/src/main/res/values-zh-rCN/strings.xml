@@ -98,8 +98,8 @@
 	<string name="wallpaper_restored">已恢复默认壁纸。</string>
 	<string name="wallpaper_error">此设备无法恢复壁纸。</string>
 	<string name="wallpaper_unavailable">此设备无法选择壁纸。</string>
-	<string name="title_show_ip">显示 IP 地址</string>
-	<string name="summary_show_ip">按网卡显示本地地址。点击地址区域可查看详情。</string>
+	<string name="title_show_ip">显示 IPv4 地址</string>
+	<string name="summary_show_ip">在网络图标下方显示本机 IPv4 地址。</string>
 	<string name="ip_addresses">IP 地址</string>
 	<string name="network_disconnected">无网络连接</string>
 	<string name="ip_unavailable">没有可用的 IP 地址</string>
@@ -130,11 +130,21 @@
 	<string name="time_format_24">24 小时制</string>
 	<string name="time_format_12">12 小时制</string>
 	<string name="menu_open">打开</string>
+	<string name="menu_move">移动</string>
 	<string name="menu_move_up">上移</string>
 	<string name="menu_move_down">下移</string>
 	<string name="menu_uninstall">卸载</string>
 	<string name="menu_app_info">应用信息</string>
 	<string name="menu_remove">从桌面移除</string>
+	<string name="menu_remove_done">已移到隐藏应用，可在设置中恢复</string>
+	<string name="move_mode_hint">移动模式：按方向键移动图标，按确定或返回键完成</string>
+	<string name="move_saved">位置已保存</string>
+	<string name="hidden_apps_category">应用</string>
+	<string name="hidden_apps_summary">勾选应用即可从桌面隐藏。</string>
+	<string name="hidden_apps_hint">勾选即隐藏，取消勾选即重新显示。从桌面移除的应用在这里已经是勾选状态。</string>
+	<string name="hidden_apps_done">完成</string>
+	<string name="version_label">版本 %1$s</string>
+	<string name="battery_level_text" translatable="false">%1d%%</string>
 	<string name="uninstall_unavailable">此设备无法卸载应用</string>
 	<string name="app_name">桌面TV</string>
 </resources>

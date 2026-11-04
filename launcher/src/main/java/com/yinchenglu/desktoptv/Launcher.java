@@ -19,7 +19,9 @@ package com.yinchenglu.desktoptv;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -28,6 +30,14 @@ import com.yinchenglu.desktoptv.fragments.ApplicationFragment;
 
 public class Launcher extends FragmentActivity {
 	private HomeImage mHomeImage;
+
+	@Override
+	public boolean dispatchKeyEvent(KeyEvent event) {
+		Fragment fragment = getSupportFragmentManager().findFragmentByTag(ApplicationFragment.TAG);
+		if (fragment instanceof ApplicationFragment && ((ApplicationFragment) fragment).handleKeyEvent(event))
+			return (true);
+		return super.dispatchKeyEvent(event);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

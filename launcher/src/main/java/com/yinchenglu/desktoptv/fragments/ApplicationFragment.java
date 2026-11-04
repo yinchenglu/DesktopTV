@@ -36,6 +36,7 @@ import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,15 +76,17 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 	private static final int REQUEST_CODE_UNLOCK = 0x22;
 	// Popup menu actions
 	private static final int MENU_OPEN = 0;
-	private static final int MENU_MOVE_UP = 1;
-	private static final int MENU_MOVE_DOWN = 2;
+	private static final int MENU_MOVE = 1;
 	private static final int MENU_UNINSTALL = 3;
 	private static final int MENU_APP_INFO = 4;
 	private static final int MENU_REMOVE = 5;
 
 	private ImageView mNetworkIcon;
 	private TextView mIp;
+	private TextView mMoveHint;
 	private Network mNetwork;
+	private boolean mMoveMode = false;
+	private int mMovePosition = -1;
 	private TextView mClock;
 	private TextView mDate;
 	private DateFormat mTimeFormat;
@@ -153,7 +156,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		mContainer = (LinearLayout) view.findViewById(R.id.container);
 		mSettings = view.findViewById(R.id.settings);
 		mIp = (TextView) view.findViewById(R.id.ip_address);
-		mIp.setOnClickListener(this);
+		mMoveHint = (TextView) view.findViewById(R.id.move_hint);
 		mNetworkIcon = (ImageView) view.findViewById(R.id.network_icon);
 		mNetwork = new Network(getContext(), mIp, mNetworkIcon);
 		mClock = (TextView) view.findViewById(R.id.clock);
@@ -292,8 +295,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		PackageManager pm = getActivity().getPackageManager();
 		Shortcuts shortcuts = new Shortcuts(getContext());
 		Folders folders = new Folders(getContext());
-		Protection protection = new Protection(getContext());
-		Set<String> removed = mSetup.getRemovedTiles();
+		Set<String> hidden = mSetup.getHiddenApps();
 
 		boolean changed = false;
 		java.util.Iterator<String> it = tiles.iterator();
@@ -314,7 +316,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 					valid = false;
 				}
 			}
-			if (!valid || removed.contains(id) || protection.isHidden(id)) {
+			if (!valid || hidden.contains(id)) {
 				it.remove();
 				changed = true;
 			}
@@ -324,7 +326,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 
 		List<AppInfo> apps = Utils.loadApplications(getContext());
 		for (AppInfo app : apps) {
-			if (!tiles.contains(app.getId()) && !removed.contains(app.getId()))
+			if (!tiles.contains(app.getId()) && !hidden.contains(app.getId()))
 				tiles.add(app.getId());
 		}
 		return tiles;
@@ -341,7 +343,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 				if (y > 0 && mApplications[y - 1][x] != null)
 					upId = mApplications[y - 1][x].getId();
 
-				int downId = mSetup.showIp() ? R.id.ip_address : R.id.settings;
+				int downId = R.id.settings;
 				if (y + 1 < mGridY && mApplications[y + 1][x] != null)
 					downId = mApplications[y + 1][x].getId();
 
@@ -368,11 +370,6 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		}
 
 		ApplicationView first = firstTileOfRow(0);
-		ApplicationView last = lastTileOfRow(mGridY - 1);
-		mIp.setNextFocusLeftId(last == null ? R.id.settings : last.getId());
-		mIp.setNextFocusRightId(R.id.settings);
-		mIp.setNextFocusUpId(first == null ? R.id.settings : first.getId());
-		mIp.setNextFocusDownId(R.id.settings);
 		mSettings.setNextFocusLeftId(R.id.settings);
 		mSettings.setNextFocusRightId(R.id.settings);
 		mSettings.setNextFocusUpId(R.id.settings);
@@ -416,7 +413,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 
 
 	private void setApplication(PackageManager pm, ApplicationView app, String appId) {
-		if (new Protection(getContext()).isHidden(appId))
+		if (mSetup.isHidden(appId))
 			appId = null;
 		try {
 			if (Shortcuts.isShortcut(appId) || Folders.isFolder(appId)) {
@@ -514,6 +511,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 	@Override
 	public void onPause() {
 		super.onPause();
+		setMoveMode(false);
 		mNetwork.stop();
 		getActivity().getSharedPreferences(Setup.APPLICATIONS_NAME, Context.MODE_PRIVATE)
 				.unregisterOnSharedPreferenceChangeListener(mShortcutChangedListener);
@@ -583,7 +581,6 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 	 * long pressed) on a selected application.
 	 */
 	private void showApplicationMenu(final ApplicationView appView) {
-		final int position = appView.getPosition();
 		final String appId = appView.getAppId();
 		if (TextUtils.isEmpty(appId))
 			return;
@@ -595,13 +592,9 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 
 		labels.add(getString(R.string.menu_open));
 		actions.add(MENU_OPEN);
-		if (position > 0) {
-			labels.add(getString(R.string.menu_move_up));
-			actions.add(MENU_MOVE_UP);
-		}
-		if (position < mTileIds.size() - 1) {
-			labels.add(getString(R.string.menu_move_down));
-			actions.add(MENU_MOVE_DOWN);
+		if (mTileIds.size() > 1) {
+			labels.add(getString(R.string.menu_move));
+			actions.add(MENU_MOVE);
 		}
 		if (isPackage) {
 			labels.add(getString(R.string.menu_uninstall));
@@ -624,23 +617,13 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 	}
 
 	private void handleMenuAction(int action, ApplicationView appView, String appId) {
-		int position = appView.getPosition();
 		switch (action) {
 			case MENU_OPEN:
 				openApplication(appId, appView.getName());
 				break;
-			case MENU_MOVE_UP:
-			case MENU_MOVE_DOWN: {
-				int target = action == MENU_MOVE_UP ? position - 1 : position + 1;
-				if (target < 0 || target >= mTileIds.size())
-					break;
-				List<String> tiles = new ArrayList<>(mTileIds);
-				Collections.swap(tiles, position, target);
-				mSetup.setHomeTiles(tiles);
-				rebuildHome();
-				focusPosition(target);
+			case MENU_MOVE:
+				startMoveMode(appView.getPosition());
 				break;
-			}
 			case MENU_UNINSTALL:
 				try {
 					Intent uninstall = new Intent(Intent.ACTION_DELETE, Uri.parse("package:" + appId));
@@ -660,9 +643,9 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 				}
 				break;
 			case MENU_REMOVE:
-				mSetup.addRemovedTile(appId);
-				mSetup.removeHomeTile(appId);
+				mSetup.setHidden(appId, true);
 				rebuildHome();
+				Toast.makeText(getActivity(), R.string.menu_remove_done, Toast.LENGTH_SHORT).show();
 				break;
 			default:
 				break;
@@ -676,13 +659,75 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 			return;
 		}
 
-		int id = v.getId();
-		if (id == R.id.ip_address) {
-			mNetwork.showDetails();
-		} else if (id == R.id.settings) {
+		if (v.getId() == R.id.settings)
 			startActivity(new Intent(getContext(), Preferences.class));
-		}
+	}
 
+	/**
+	 * Remote keys are intercepted by the hosting activity while a tile is
+	 * being moved, so the direction keys reorder the grid instead of moving
+	 * the focus.
+	 */
+	public boolean handleKeyEvent(KeyEvent event) {
+		if (!mMoveMode)
+			return (false);
+		if (event.getAction() == KeyEvent.ACTION_UP)
+			return (true);
+		switch (event.getKeyCode()) {
+			case KeyEvent.KEYCODE_DPAD_UP:
+				moveTile(-mGridX);
+				return (true);
+			case KeyEvent.KEYCODE_DPAD_DOWN:
+				moveTile(mGridX);
+				return (true);
+			case KeyEvent.KEYCODE_DPAD_LEFT:
+				moveTile(mMovePosition % mGridX == 0 ? 0 : -1);
+				return (true);
+			case KeyEvent.KEYCODE_DPAD_RIGHT:
+				moveTile(mMovePosition % mGridX == mGridX - 1 ? 0 : 1);
+				return (true);
+			case KeyEvent.KEYCODE_ENTER:
+			case KeyEvent.KEYCODE_DPAD_CENTER:
+			case KeyEvent.KEYCODE_NUMPAD_ENTER:
+			case KeyEvent.KEYCODE_BACK:
+				setMoveMode(false);
+				Toast.makeText(getActivity(), R.string.move_saved, Toast.LENGTH_SHORT).show();
+				return (true);
+			case KeyEvent.KEYCODE_MENU:
+				return (true);
+			default:
+				return (false);
+		}
+	}
+
+	private void startMoveMode(int position) {
+		if (position < 0 || position >= mTileIds.size())
+			return;
+		mMovePosition = position;
+		setMoveMode(true);
+		focusPosition(position);
+	}
+
+	private void setMoveMode(boolean moving) {
+		mMoveMode = moving;
+		if (!moving)
+			mMovePosition = -1;
+		if (mMoveHint != null)
+			mMoveHint.setVisibility(moving ? View.VISIBLE : View.GONE);
+	}
+
+	private void moveTile(int delta) {
+		if (delta == 0 || mMovePosition < 0)
+			return;
+		int target = mMovePosition + delta;
+		if (target < 0 || target >= mTileIds.size())
+			return;
+		List<String> tiles = new ArrayList<>(mTileIds);
+		Collections.swap(tiles, mMovePosition, target);
+		mSetup.setHomeTiles(tiles);
+		mMovePosition = target;
+		rebuildHome();
+		focusPosition(target);
 	}
 
 	private void openApplication(ApplicationView v) {

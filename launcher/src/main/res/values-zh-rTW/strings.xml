@@ -98,8 +98,8 @@
 	<string name="wallpaper_restored">已還原預設桌布。</string>
 	<string name="wallpaper_error">無法在此裝置上還原桌布。</string>
 	<string name="wallpaper_unavailable">此裝置無法開啟桌布選擇功能。</string>
-	<string name="title_show_ip">顯示 IP 位址</string>
-	<string name="summary_show_ip">依網路介面顯示本機位址。選取位址區域可查看詳細資訊。</string>
+	<string name="title_show_ip">顯示 IPv4 位址</string>
+	<string name="summary_show_ip">在網路圖示下方顯示本機 IPv4 位址。</string>
 	<string name="ip_addresses">IP 位址</string>
 	<string name="network_disconnected">未連線至網路</string>
 	<string name="ip_unavailable">沒有可用的 IP 位址</string>
@@ -123,5 +123,18 @@
 	<string name="summary_home">在 Android 設定中將 DesktopTV 設為預設主畫面。</string>
 	<string name="home_settings_unavailable">無法選擇主畫面，已開啟 Android 設定。</string>
 	<string name="title_privacy">隱私權政策</string>
+	<string name="menu_open">開啟</string>
+	<string name="menu_move">移動</string>
+	<string name="menu_uninstall">解除安裝</string>
+	<string name="menu_app_info">應用程式資訊</string>
+	<string name="menu_remove">從主畫面移除</string>
+	<string name="menu_remove_done">已移到隱藏應用程式</string>
+	<string name="move_mode_hint">移動模式：方向鍵移動圖示，確定或返回鍵完成</string>
+	<string name="move_saved">位置已儲存</string>
+	<string name="hidden_apps_category">應用程式</string>
+	<string name="hidden_apps_summary">勾選應用程式即可從主畫面隱藏。</string>
+	<string name="hidden_apps_hint">勾選即隱藏，取消勾選即重新顯示。</string>
+	<string name="hidden_apps_done">完成</string>
+	<string name="version_label">版本 %1$s</string>
 	<string name="app_name">桌面TV</string>
 </resources>

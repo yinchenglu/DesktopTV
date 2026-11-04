@@ -85,6 +85,7 @@
 		<activity android:name=".activities.Preferences"/>
 		<activity android:name=".activities.Unlock"/>
 		<activity android:name=".activities.ProtectionSettings"/>
+		<activity android:name=".activities.HiddenApps"/>
 		<activity
 			android:name=".activities.AddShortcut"
 			android:exported="true"

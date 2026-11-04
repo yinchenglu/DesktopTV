@@ -100,9 +100,9 @@
 			android:summary="@array/transparency_values"
 			android:title="@string/title_transparency"/>
 	</PreferenceCategory>
-	<PreferenceCategory android:title="@string/protection_category">
-		<Preference android:key="preference_protection" android:title="@string/protection"
-			android:summary="@string/protection_summary"/>
+	<PreferenceCategory android:title="@string/hidden_apps_category">
+		<Preference android:key="preference_hidden_apps" android:title="@string/hidden_apps"
+			android:summary="@string/hidden_apps_summary"/>
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/system">
 		<Preference android:key="preference_home" android:title="@string/title_home"
@@ -146,14 +146,7 @@
 	<PreferenceCategory android:title="@string/about">
 		<Preference
 			android:key="preference_about"
+			android:selectable="false"
 			android:title="@string/app_name"/>
-		<Preference
-			android:key="preference_github"
-			android:title="@string/title_github">
-		</Preference>
-		<Preference
-			android:key="preference_privacy"
-			android:title="@string/title_privacy"
-			android:summary="@string/privacy_url"/>
 	</PreferenceCategory>
 </PreferenceScreen>

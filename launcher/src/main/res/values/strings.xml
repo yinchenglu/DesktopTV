@@ -99,8 +99,8 @@
 	<string name="wallpaper_restored">Default wallpaper restored.</string>
 	<string name="wallpaper_error">Unable to restore the wallpaper on this device.</string>
 	<string name="wallpaper_unavailable">Wallpaper selection is unavailable on this device.</string>
-	<string name="title_show_ip">Show IP addresses</string>
-	<string name="summary_show_ip">Show local addresses by interface. Select the address area for details.</string>
+	<string name="title_show_ip">Show IPv4 address</string>
+	<string name="summary_show_ip">Show the local IPv4 address below the network icon.</string>
 	<string name="ip_addresses">IP addresses</string>
 	<string name="network_disconnected">No network connection</string>
 	<string name="ip_unavailable">No IP address available</string>
@@ -135,11 +135,18 @@
 	<string name="time_format_24">24-hour</string>
 	<string name="time_format_12">12-hour</string>
 	<string name="menu_open">Open</string>
-	<string name="menu_move_up">Move up</string>
-	<string name="menu_move_down">Move down</string>
+	<string name="menu_move">Move</string>
 	<string name="menu_uninstall">Uninstall</string>
 	<string name="menu_app_info">App info</string>
 	<string name="menu_remove">Remove from home</string>
+	<string name="menu_remove_done">Moved to hidden applications</string>
+	<string name="move_mode_hint">Move mode: arrow keys to move, OK or Back to finish</string>
+	<string name="move_saved">Position saved</string>
+	<string name="hidden_apps_category">Applications</string>
+	<string name="hidden_apps_summary">Check an application to hide it from the home screen.</string>
+	<string name="hidden_apps_hint">Check to hide, uncheck to show again. Applications removed from the home screen are already checked.</string>
+	<string name="hidden_apps_done">Done</string>
+	<string name="version_label">Version %1$s</string>
 	<string name="uninstall_unavailable">Uninstalling is unavailable on this device</string>
 	<string-array name="time_format_labels">
 		<item>@string/time_format_system</item>

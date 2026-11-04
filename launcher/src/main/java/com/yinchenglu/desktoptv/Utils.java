@@ -76,11 +76,16 @@ public class Utils {
 		entries.addAll(new Shortcuts(context).load());
 		entries.addAll(new Folders(context).load());
 		if (!includeHidden) {
-			Protection protection = new Protection(context);
-			Iterator<AppInfo> items = entries.iterator();
-			while (items.hasNext()) {
-				if (protection.isHidden(items.next().getId()))
-					items.remove();
+			Set<String> hidden = new Setup(context).getHiddenApps();
+			if (!hidden.isEmpty()) {
+				Shortcuts shortcuts = new Shortcuts(context);
+				Iterator<AppInfo> items = entries.iterator();
+				while (items.hasNext()) {
+					String id = items.next().getId();
+					String packageName = shortcuts.getPackage(id);
+					if (hidden.contains(id) || (packageName != null && hidden.contains(packageName)))
+						items.remove();
+				}
 			}
 		}
 		Collections.sort(entries, new Comparator<AppInfo>() {

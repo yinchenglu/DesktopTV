@@ -40,7 +40,9 @@ import static com.yinchenglu.desktoptv.activities.Preferences.PREFERENCE_TRANSPA
 public class Setup {
 	public static final String APPLICATIONS_NAME = "applications";
 	public static final String HOME_TILES = "home_tiles";
-	public static final String HOME_REMOVED = "home_removed";
+	public static final String HIDDEN_APPS = "hidden_apps";
+	private static final String LEGACY_REMOVED = "home_removed";
+	private static final String HIDDEN_MIGRATED = "hidden_migrated";
 	private static final String DEFAULTS_INITIALIZED = "defaults_initialized";
 	private static final String MIGRATED = "tiles_migrated";
 	private static final int DEFAULT_GRID_X = 3;
@@ -71,6 +73,17 @@ public class Setup {
 			if (!tiles.isEmpty())
 				setHomeTiles(tiles);
 			preferences.edit().putBoolean(MIGRATED, true).apply();
+		}
+
+		// Merge the legacy "removed from home" list and the old PIN protected
+		// hidden list into the single hidden applications set.
+		if (!preferences.getBoolean(HIDDEN_MIGRATED, false)) {
+			Set<String> hidden = getHiddenApps();
+			hidden.addAll(preferences.getStringSet(LEGACY_REMOVED, new HashSet<String>()));
+			hidden.addAll(mContext.getSharedPreferences("protection", Context.MODE_PRIVATE)
+					.getStringSet(Protection.HIDDEN, new HashSet<String>()));
+			setHiddenApps(hidden);
+			preferences.edit().remove(LEGACY_REMOVED).putBoolean(HIDDEN_MIGRATED, true).apply();
 		}
 
 		// Un ancien accueil vidé volontairement possède encore son fichier de préférences.
@@ -138,16 +151,32 @@ public class Setup {
 			setHomeTiles(tiles);
 	}
 
-	public Set<String> getRemovedTiles() {
-		return new HashSet<>(getApplicationPreferences().getStringSet(HOME_REMOVED, new HashSet<String>()));
+	/**
+	 * Applications the user hides from the home screen. This is the single
+	 * source of truth shared by the "remove from home" menu entry and the
+	 * hidden applications settings screen.
+	 */
+	public Set<String> getHiddenApps() {
+		return new HashSet<>(getApplicationPreferences().getStringSet(HIDDEN_APPS, new HashSet<String>()));
 	}
 
-	public void addRemovedTile(String id) {
+	public void setHiddenApps(Set<String> ids) {
+		getApplicationPreferences().edit().putStringSet(HIDDEN_APPS, new HashSet<>(ids)).apply();
+	}
+
+	public boolean isHidden(String id) {
+		if (TextUtils.isEmpty(id))
+			return (false);
+		return (getHiddenApps().contains(id));
+	}
+
+	public void setHidden(String id, boolean hidden) {
 		if (TextUtils.isEmpty(id))
 			return;
-		Set<String> removed = getRemovedTiles();
-		removed.add(id);
-		getApplicationPreferences().edit().putStringSet(HOME_REMOVED, removed).apply();
+		Set<String> ids = getHiddenApps();
+		boolean changed = hidden ? ids.add(id) : ids.remove(id);
+		if (changed)
+			setHiddenApps(ids);
 	}
 
 	public String getTimeFormat() {
