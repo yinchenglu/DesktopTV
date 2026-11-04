@@ -1,0 +1,6 @@
+# 保证 shell 脚本在任何平台都是 LF，避免 Linux 构建机报 bad interpreter
+gradlew text eol=lf
+*.sh text eol=lf
+# Windows 批处理保持 CRLF
+gradlew.bat text eol=crlf
+*.bat text eol=crlf
