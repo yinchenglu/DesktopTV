@@ -144,5 +144,12 @@
 	<string name="version_label">版本 %1$s</string>
 	<string name="battery_level_text" translatable="false">%1d%%</string>
 	<string name="uninstall_unavailable">此设备无法卸载应用</string>
+	<string name="title_reset_defaults">恢复默认设置</string>
+	<string name="summary_reset_defaults">把全部设置和桌面布局恢复为默认值，并重启桌面。</string>
+	<string name="confirm_reset_defaults">确定把所有设置恢复为默认值吗？桌面将会重启。</string>
+	<string name="reset_done">设置已恢复，正在重启桌面…</string>
+	<string name="cleanup_button">清理内存</string>
+	<string name="cleaning_memory">正在清理内存…</string>
+	<string name="memory_cleaned">已释放 %1$d MB 内存</string>
 	<string name="app_name">桌面TV</string>
 </resources>

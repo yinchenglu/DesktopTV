@@ -148,6 +148,13 @@
 	<string name="hidden_apps_done">Done</string>
 	<string name="version_label">Version %1$s</string>
 	<string name="uninstall_unavailable">Uninstalling is unavailable on this device</string>
+	<string name="title_reset_defaults">Restore default settings</string>
+	<string name="summary_reset_defaults">Reset all preferences and the home screen layout to their defaults, then restart the launcher.</string>
+	<string name="confirm_reset_defaults">Reset all settings to their defaults? The home screen will restart.</string>
+	<string name="reset_done">Settings restored, restarting…</string>
+	<string name="cleanup_button">Clean memory</string>
+	<string name="cleaning_memory">Cleaning memory…</string>
+	<string name="memory_cleaned">Freed %1$d MB of memory</string>
 	<string-array name="time_format_labels">
 		<item>@string/time_format_system</item>
 		<item>@string/time_format_24</item>

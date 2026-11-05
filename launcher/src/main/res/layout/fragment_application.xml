@@ -34,6 +34,15 @@
 			android:layout_height="wrap_content"
 			android:gravity="center_vertical">
 
+			<ImageButton
+				android:id="@+id/cleanup"
+				android:layout_width="48dp"
+				android:layout_height="48dp"
+				android:background="@drawable/application_selector"
+				android:padding="12dp"
+				android:contentDescription="@string/cleanup_button"
+				android:src="@drawable/ic_cleanup"/>
+
 			<LinearLayout
 				android:id="@+id/battery_layout"
 				android:visibility="invisible"

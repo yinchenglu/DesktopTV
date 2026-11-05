@@ -84,6 +84,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 	private ImageView mNetworkIcon;
 	private TextView mIp;
 	private TextView mMoveHint;
+	private View mCleanup;
 	private Network mNetwork;
 	private boolean mMoveMode = false;
 	private int mMovePosition = -1;
@@ -124,6 +125,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 	private View mSettings;
 	private Setup mSetup;
 	private boolean mShowingShortcut = false;
+	private boolean mCleaning = false;
 	private final SharedPreferences.OnSharedPreferenceChangeListener mShortcutChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
 		@Override
 		public void onSharedPreferenceChanged(SharedPreferences preferences, String key) {
@@ -155,6 +157,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		mSetup = new Setup(getContext());
 		mContainer = (LinearLayout) view.findViewById(R.id.container);
 		mSettings = view.findViewById(R.id.settings);
+		mCleanup = view.findViewById(R.id.cleanup);
 		mIp = (TextView) view.findViewById(R.id.ip_address);
 		mMoveHint = (TextView) view.findViewById(R.id.move_hint);
 		mNetworkIcon = (ImageView) view.findViewById(R.id.network_icon);
@@ -169,6 +172,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		mDateFormat = android.text.format.DateFormat.getLongDateFormat(getActivity());
 
 		mSettings.setOnClickListener(this);
+		mCleanup.setOnClickListener(this);
 
 		rebuildHome();
 
@@ -246,7 +250,16 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 
 			for (int x = 0; x < mGridX; x++) {
 				if (position >= count) {
+					// Keep the grid geometry of a full row so the icons of a
+					// partially filled last row do not stretch to fill it.
 					mApplications[y][x] = null;
+					View filler = new View(getContext());
+					filler.setFocusable(false);
+					LinearLayout.LayoutParams flp = new LinearLayout.LayoutParams(0, 0, 1);
+					flp.setMargins(x == 0 ? 0 : marginX, y == 0 ? 0 : marginY,
+							x + 1 == mGridX ? 0 : marginX, marginY);
+					filler.setLayoutParams(flp);
+					ll.addView(filler);
 					continue;
 				}
 				ApplicationView av = new ApplicationView(getContext());
@@ -370,10 +383,14 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		}
 
 		ApplicationView first = firstTileOfRow(0);
-		mSettings.setNextFocusLeftId(R.id.settings);
+		mSettings.setNextFocusLeftId(R.id.cleanup);
 		mSettings.setNextFocusRightId(R.id.settings);
 		mSettings.setNextFocusUpId(R.id.settings);
 		mSettings.setNextFocusDownId(first == null ? R.id.settings : first.getId());
+		mCleanup.setNextFocusLeftId(R.id.cleanup);
+		mCleanup.setNextFocusRightId(R.id.settings);
+		mCleanup.setNextFocusUpId(R.id.cleanup);
+		mCleanup.setNextFocusDownId(first == null ? R.id.cleanup : first.getId());
 	}
 
 	private ApplicationView firstTileOfRow(int y) {
@@ -661,6 +678,38 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 
 		if (v.getId() == R.id.settings)
 			startActivity(new Intent(getContext(), Preferences.class));
+		else if (v.getId() == R.id.cleanup)
+			cleanupMemory();
+	}
+
+	/**
+	 * Kills every background process and reports the memory freed.
+	 * The launcher itself is never killed.
+	 */
+	private void cleanupMemory() {
+		final Activity activity = getActivity();
+		if (activity == null || mCleaning)
+			return;
+		mCleaning = true;
+		Toast.makeText(activity, R.string.cleaning_memory, Toast.LENGTH_SHORT).show();
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				final long freed = MemoryCleaner.clean(activity.getApplicationContext());
+				if (getActivity() == null || isDetached())
+					return;
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						mCleaning = false;
+						if (getActivity() != null)
+							Toast.makeText(getActivity(),
+									getString(R.string.memory_cleaned, freed),
+									Toast.LENGTH_SHORT).show();
+					}
+				});
+			}
+		}).start();
 	}
 
 	/**

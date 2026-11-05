@@ -108,21 +108,55 @@ public class Network extends BroadcastReceiver {
 	}
 
 	/**
-	 * Returns the IPv4 address of the connected interface. IPv6 and link local
-	 * addresses are ignored so the value stays readable on a television.
+	 * Returns the IPv4 address of the connected interface. The lookup does
+	 * not depend on the reported connectivity state: some TV boxes never
+	 * report an active network, so the interfaces are simply enumerated.
+	 * IPv6 and link local addresses are ignored so the value stays
+	 * readable on a television.
 	 */
 	public static String readIpv4(Context context) {
 		try {
-			if (getState(context) == State.NONE)
-				return (context.getString(R.string.network_disconnected));
-			String address = findIpv4();
+			String address = findIpv4Cm(context);
+			if (address == null)
+				address = findIpv4();
 			if (address != null)
 				return (address);
-			return (context.getString(R.string.ip_unavailable));
+			if (getState(context) == State.UNKNOWN)
+				return (context.getString(R.string.network_unavailable));
+			return (context.getString(R.string.network_disconnected));
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ("");
 		}
+	}
+
+	/**
+	 * Asks the connectivity service for the addresses of every network.
+	 * More reliable than interface enumeration on some devices.
+	 */
+	@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+	private static String findIpv4Cm(Context context) {
+		try {
+			ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+			if (manager == null)
+				return (null);
+			for (android.net.Network network : manager.getAllNetworks()) {
+				android.net.LinkProperties properties = manager.getLinkProperties(network);
+				if (properties == null)
+					continue;
+				for (android.net.LinkAddress linkAddress : properties.getLinkAddresses()) {
+					InetAddress address = linkAddress.getAddress();
+					if (address instanceof Inet4Address
+							&& !address.isLoopbackAddress()
+							&& !address.isLinkLocalAddress()
+							&& !address.isAnyLocalAddress())
+						return (address.getHostAddress());
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return (null);
 	}
 
 	private static String findIpv4() throws Exception {

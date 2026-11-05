@@ -40,6 +40,7 @@ import android.widget.Toast;
 import com.yinchenglu.desktoptv.R;
 import com.yinchenglu.desktoptv.Background;
 import com.yinchenglu.desktoptv.HomeImage;
+import com.yinchenglu.desktoptv.Launcher;
 import com.yinchenglu.desktoptv.Protection;
 import com.yinchenglu.desktoptv.Setup;
 
@@ -68,6 +69,7 @@ public class Preferences extends PreferenceActivity {
 	public static final String PREFERENCE_TIME_FORMAT = "preference_time_format";
 	private static final String PREFERENCE_ABOUT = "preference_about";
 	private static final String PREFERENCE_HIDDEN_APPS = "preference_hidden_apps";
+	private static final String PREFERENCE_RESET_DEFAULTS = "preference_reset_defaults";
 	private static final String PREFERENCE_SCREENSAVER = "preference_screensaver";
 	private static final int REQUEST_UNLOCK = 100;
 	private static final int REQUEST_IMAGE = 101;
@@ -98,6 +100,13 @@ public class Preferences extends PreferenceActivity {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
 				startActivity(new Intent(Preferences.this, HiddenApps.class));
+				return (true);
+			}
+		});
+		findPreference(PREFERENCE_RESET_DEFAULTS).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				confirmResetDefaults();
 				return (true);
 			}
 		});
@@ -251,6 +260,38 @@ public class Preferences extends PreferenceActivity {
 			}
 		};
 		mWallpaperReset.execute();
+	}
+
+	private void confirmResetDefaults() {
+		new AlertDialog.Builder(this)
+				.setTitle(R.string.title_reset_defaults)
+				.setMessage(R.string.confirm_reset_defaults)
+				.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						resetDefaults();
+					}
+				})
+				.setNegativeButton(android.R.string.cancel, null)
+				.show();
+	}
+
+	/**
+	 * Clears every preference (display settings and the home screen
+	 * layout) and restarts the launcher so the first-run defaults are
+	 * applied again.
+	 */
+	private void resetDefaults() {
+		PreferenceManager.getDefaultSharedPreferences(this).edit().clear().apply();
+		getSharedPreferences(Setup.APPLICATIONS_NAME, Context.MODE_PRIVATE).edit().clear().commit();
+		// Remove the file so the launcher behaves like a fresh install.
+		// noinspection ResultOfMethodCallIgnored
+		new File(getApplicationInfo().dataDir, "shared_prefs/" + Setup.APPLICATIONS_NAME + ".xml").delete();
+		Toast.makeText(this, R.string.reset_done, Toast.LENGTH_SHORT).show();
+		Intent relaunch = new Intent(this, Launcher.class);
+		relaunch.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+		startActivity(relaunch);
+		finish();
 	}
 
 	private void openHomeSettings() {

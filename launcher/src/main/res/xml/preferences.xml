@@ -18,17 +18,17 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 	<PreferenceCategory android:title="@string/app_name">
 		<CheckBoxPreference
-			android:defaultValue="false"
+			android:defaultValue="true"
 			android:key="preference_screen_always_on"
 			android:summary="@string/summary_screen_always_on"
 			android:title="@string/title_screen_always_on"/>
 		<CheckBoxPreference
-			android:defaultValue="@bool/show_date_default"
+			android:defaultValue="true"
 			android:key="preference_show_date"
 			android:summary="@string/summary_show_date"
 			android:title="@string/title_show_date"/>
 		<ListPreference
-			android:defaultValue="system"
+			android:defaultValue="24"
 			android:entries="@array/time_format_labels"
 			android:entryValues="@array/time_format_values"
 			android:key="preference_time_format"
@@ -40,12 +40,12 @@
 			android:summary="@string/summary_show_battery_information"
 			android:title="@string/title_show_battery_information"/>
 		<CheckBoxPreference
-			android:defaultValue="false"
+			android:defaultValue="true"
 			android:key="preference_show_network"
 			android:summary="@string/summary_show_network"
 			android:title="@string/title_show_network"/>
 		<CheckBoxPreference
-			android:defaultValue="@bool/show_ip_default"
+			android:defaultValue="true"
 			android:key="preference_show_ip"
 			android:summary="@string/summary_show_ip"
 			android:title="@string/title_show_ip"/>
@@ -59,12 +59,16 @@
 			android:key="preference_locked"
 			android:summary="@string/summary_locked"
 			android:title="@string/title_locked"/>
+		<Preference
+			android:key="preference_reset_defaults"
+			android:summary="@string/summary_reset_defaults"
+			android:title="@string/title_reset_defaults"/>
 	</PreferenceCategory>
 	<PreferenceCategory
 		android:key="category_grid"
 		android:title="@string/app_grid">
 		<ListPreference
-			android:defaultValue="3"
+			android:defaultValue="5"
 			android:entries="@array/grid_x"
 			android:entryValues="@array/grid_x"
 			android:key="preference_grid_x"
@@ -112,7 +116,7 @@
 			android:summary="@string/summary_screensaver"
 			android:title="@string/title_screensaver"/>
 		<CheckBoxPreference
-			android:defaultValue="@bool/show_wallpaper_default"
+			android:defaultValue="false"
 			android:key="preference_show_wallpaper"
 			android:summary="@string/summary_show_wallpaper"
 			android:title="@string/title_show_wallpaper"/>
