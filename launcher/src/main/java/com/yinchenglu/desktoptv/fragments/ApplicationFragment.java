@@ -695,7 +695,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				final long freed = MemoryCleaner.clean(activity.getApplicationContext());
+				final long freed = Utils.cleanMemory(activity.getApplicationContext());
 				if (getActivity() == null || isDetached())
 					return;
 				getActivity().runOnUiThread(new Runnable() {

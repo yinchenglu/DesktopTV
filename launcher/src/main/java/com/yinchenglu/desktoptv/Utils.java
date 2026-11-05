@@ -34,6 +34,49 @@ import java.util.Set;
 import java.util.HashSet;
 
 public class Utils {
+
+	/**
+	 * Kills the background processes of every installed application
+	 * (except this launcher) and returns how many megabytes of free
+	 * memory were gained.
+	 */
+	public static long cleanMemory(Context context) {
+		android.app.ActivityManager manager = (android.app.ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+		if (manager == null)
+			return (0);
+
+		android.app.ActivityManager.MemoryInfo before = new android.app.ActivityManager.MemoryInfo();
+		manager.getMemoryInfo(before);
+
+		try {
+			PackageManager packageManager = context.getPackageManager();
+			List<android.content.pm.PackageInfo> packages = packageManager.getInstalledPackages(0);
+			for (android.content.pm.PackageInfo info : packages) {
+				if (info == null || context.getPackageName().equals(info.packageName))
+					continue;
+				try {
+					manager.killBackgroundProcesses(info.packageName);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		try {
+			Thread.sleep(800);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+		}
+
+		android.app.ActivityManager.MemoryInfo after = new android.app.ActivityManager.MemoryInfo();
+		manager.getMemoryInfo(after);
+
+		long freed = (after.availMem - before.availMem) / (1024 * 1024);
+		return (freed > 0 ? freed : 0);
+	}
+
 	public static List<AppInfo> loadApplications(Context context) {
 		return (loadApplications(context, false));
 	}
