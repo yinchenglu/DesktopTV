@@ -98,11 +98,15 @@ public class Network extends BroadcastReceiver {
 	}
 
 	private void refresh() {
-		if (mIcon != null && mIcon.getVisibility() == View.VISIBLE)
-			setState(getState(mContext));
-		String text = mView.getVisibility() == View.VISIBLE ? readIpv4(mContext) : "";
-		if (!TextUtils.equals(mView.getText(), text))
-			mView.setText(text);
+		try {
+			if (mIcon != null && mIcon.getVisibility() == View.VISIBLE)
+				setState(getState(mContext));
+			String text = mView.getVisibility() == View.VISIBLE ? readIpv4(mContext) : "";
+			if (!TextUtils.equals(mView.getText(), text))
+				mView.setText(text);
+		} catch (Throwable t) {
+			t.printStackTrace();
+		}
 		mHandler.removeCallbacks(mRefresh);
 		mHandler.postDelayed(mRefresh, REFRESH_DELAY);
 	}
@@ -116,9 +120,12 @@ public class Network extends BroadcastReceiver {
 	 */
 	public static String readIpv4(Context context) {
 		try {
-			String address = findIpv4Cm(context);
-			if (address == null)
-				address = findIpv4();
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				String address = findIpv4Cm(context);
+				if (address != null)
+					return (address);
+			}
+			String address = findIpv4();
 			if (address != null)
 				return (address);
 			if (getState(context) == State.UNKNOWN)

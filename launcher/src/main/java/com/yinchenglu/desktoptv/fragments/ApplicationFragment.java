@@ -57,6 +57,8 @@ import com.yinchenglu.desktoptv.activities.Folder;
 import com.yinchenglu.desktoptv.activities.ApplicationList;
 import com.yinchenglu.desktoptv.activities.Preferences;
 import com.yinchenglu.desktoptv.activities.AddShortcut;
+import com.yinchenglu.desktoptv.activities.FileManager;
+import com.yinchenglu.desktoptv.activities.QrTransfer;
 import com.yinchenglu.desktoptv.views.ApplicationView;
 
 import java.text.DateFormat;
@@ -85,6 +87,8 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 	private TextView mIp;
 	private TextView mMoveHint;
 	private View mCleanup;
+	private View mFileManager;
+	private View mQrTransfer;
 	private Network mNetwork;
 	private boolean mMoveMode = false;
 	private int mMovePosition = -1;
@@ -158,6 +162,8 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		mContainer = (LinearLayout) view.findViewById(R.id.container);
 		mSettings = view.findViewById(R.id.settings);
 		mCleanup = view.findViewById(R.id.cleanup);
+		mFileManager = view.findViewById(R.id.filemanager);
+		mQrTransfer = view.findViewById(R.id.qrtransfer);
 		mIp = (TextView) view.findViewById(R.id.ip_address);
 		mMoveHint = (TextView) view.findViewById(R.id.move_hint);
 		mNetworkIcon = (ImageView) view.findViewById(R.id.network_icon);
@@ -173,6 +179,8 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 
 		mSettings.setOnClickListener(this);
 		mCleanup.setOnClickListener(this);
+		mFileManager.setOnClickListener(this);
+		mQrTransfer.setOnClickListener(this);
 
 		rebuildHome();
 
@@ -383,14 +391,22 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		}
 
 		ApplicationView first = firstTileOfRow(0);
-		mSettings.setNextFocusLeftId(R.id.cleanup);
+		mSettings.setNextFocusLeftId(R.id.qrtransfer);
 		mSettings.setNextFocusRightId(R.id.settings);
 		mSettings.setNextFocusUpId(R.id.settings);
 		mSettings.setNextFocusDownId(first == null ? R.id.settings : first.getId());
 		mCleanup.setNextFocusLeftId(R.id.cleanup);
-		mCleanup.setNextFocusRightId(R.id.settings);
+		mCleanup.setNextFocusRightId(R.id.filemanager);
 		mCleanup.setNextFocusUpId(R.id.cleanup);
 		mCleanup.setNextFocusDownId(first == null ? R.id.cleanup : first.getId());
+		mFileManager.setNextFocusLeftId(R.id.cleanup);
+		mFileManager.setNextFocusRightId(R.id.qrtransfer);
+		mFileManager.setNextFocusUpId(R.id.filemanager);
+		mFileManager.setNextFocusDownId(first == null ? R.id.filemanager : first.getId());
+		mQrTransfer.setNextFocusLeftId(R.id.filemanager);
+		mQrTransfer.setNextFocusRightId(R.id.settings);
+		mQrTransfer.setNextFocusUpId(R.id.qrtransfer);
+		mQrTransfer.setNextFocusDownId(first == null ? R.id.qrtransfer : first.getId());
 	}
 
 	private ApplicationView firstTileOfRow(int y) {
@@ -680,6 +696,10 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 			startActivity(new Intent(getContext(), Preferences.class));
 		else if (v.getId() == R.id.cleanup)
 			cleanupMemory();
+		else if (v.getId() == R.id.filemanager)
+			startActivity(new Intent(getContext(), FileManager.class));
+		else if (v.getId() == R.id.qrtransfer)
+			startActivity(new Intent(getContext(), QrTransfer.class));
 	}
 
 	/**

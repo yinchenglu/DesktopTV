@@ -58,8 +58,8 @@ android {
         applicationId "com.yinchenglu.desktoptv"
         minSdkVersion 14
         targetSdkVersion 37
-        versionCode 240
-        versionName "2.4.0"
+        versionCode 250
+        versionName "2.5.0"
     }
 
     signingConfigs {
@@ -92,6 +92,7 @@ android {
 
 dependencies {
     implementation 'com.android.support:appcompat-v7:25.4.0'
+    implementation 'com.google.zxing:core:3.3.3'
 }
 
 coveralls {

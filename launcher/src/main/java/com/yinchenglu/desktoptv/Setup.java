@@ -45,7 +45,7 @@ public class Setup {
 	private static final String HIDDEN_MIGRATED = "hidden_migrated";
 	private static final String DEFAULTS_INITIALIZED = "defaults_initialized";
 	private static final String MIGRATED = "tiles_migrated";
-	private static final int DEFAULT_GRID_X = 3;
+	private static final int DEFAULT_GRID_X = 5;
 	private static final int DEFAULT_GRID_Y = 2;
 	private static final int DEFAULT_MARGIN_X = 5;
 	private static final int DEFAULT_MARGIN_Y = 5;
@@ -187,7 +187,7 @@ public class Setup {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return "system";
+		return "24";
 	}
 
 	private SharedPreferences getPreferences() {
@@ -230,11 +230,11 @@ public class Setup {
 
 	public boolean showNetwork() {
 		try {
-			return (getPreferences().getBoolean(Preferences.PREFERENCE_SHOW_NETWORK, false));
+			return (getPreferences().getBoolean(Preferences.PREFERENCE_SHOW_NETWORK, true));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return (false);
+		return (true);
 	}
 
 	public boolean showIp() {
@@ -277,11 +277,11 @@ public class Setup {
 
 	public boolean keepScreenOn() {
 		try {
-			return (getPreferences().getBoolean(Preferences.PREFERENCE_SCREEN_ON, false));
+			return (getPreferences().getBoolean(Preferences.PREFERENCE_SCREEN_ON, true));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return (false);
+		return (true);
 	}
 
 	public boolean iconsLocked() {

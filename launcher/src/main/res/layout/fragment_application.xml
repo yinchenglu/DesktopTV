@@ -34,14 +34,76 @@
 			android:layout_height="wrap_content"
 			android:gravity="center_vertical">
 
-			<ImageButton
+			<LinearLayout
 				android:id="@+id/cleanup"
-				android:layout_width="48dp"
-				android:layout_height="48dp"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
 				android:background="@drawable/application_selector"
-				android:padding="12dp"
-				android:contentDescription="@string/cleanup_button"
-				android:src="@drawable/ic_cleanup"/>
+				android:gravity="center_horizontal"
+				android:orientation="vertical"
+				android:padding="6dp">
+
+				<ImageView
+					android:layout_width="40dp"
+					android:layout_height="40dp"
+					android:contentDescription="@string/cleanup_button"
+					android:src="@drawable/ic_cleanup"/>
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/cleanup_button"
+					android:textColor="#ffffffff"
+					android:textSize="12sp"/>
+			</LinearLayout>
+
+			<LinearLayout
+				android:id="@+id/filemanager"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="8dp"
+				android:background="@drawable/application_selector"
+				android:gravity="center_horizontal"
+				android:orientation="vertical"
+				android:padding="6dp">
+
+				<ImageView
+					android:layout_width="40dp"
+					android:layout_height="40dp"
+					android:contentDescription="@string/top_files"
+					android:src="@drawable/ic_files"/>
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/top_files"
+					android:textColor="#ffffffff"
+					android:textSize="12sp"/>
+			</LinearLayout>
+
+			<LinearLayout
+				android:id="@+id/qrtransfer"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="8dp"
+				android:background="@drawable/application_selector"
+				android:gravity="center_horizontal"
+				android:orientation="vertical"
+				android:padding="6dp">
+
+				<ImageView
+					android:layout_width="40dp"
+					android:layout_height="40dp"
+					android:contentDescription="@string/top_qr"
+					android:src="@drawable/ic_qrcode"/>
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/top_qr"
+					android:textColor="#ffffffff"
+					android:textSize="12sp"/>
+			</LinearLayout>
 
 			<LinearLayout
 				android:id="@+id/battery_layout"
@@ -148,15 +210,29 @@
 					android:textColor="#ffffffff"
 					android:textSize="15sp"/>
 			</LinearLayout>
-			<ImageButton
+			<LinearLayout
 				android:id="@+id/settings"
-				android:layout_width="48dp"
-				android:layout_height="48dp"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
 				android:layout_marginLeft="12dp"
 				android:background="@drawable/application_selector"
-				android:padding="12dp"
-				android:contentDescription="@string/preferences"
-				android:src="@drawable/ic_tune"/>
+				android:gravity="center_horizontal"
+				android:orientation="vertical"
+				android:padding="6dp">
+
+				<ImageView
+					android:layout_width="40dp"
+					android:layout_height="40dp"
+					android:contentDescription="@string/preferences"
+					android:src="@drawable/ic_tune"/>
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/preferences"
+					android:textColor="#ffffffff"
+					android:textSize="12sp"/>
+			</LinearLayout>
 		</LinearLayout>
 
 

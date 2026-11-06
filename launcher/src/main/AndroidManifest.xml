@@ -45,6 +45,9 @@
 		android:name="android.permission.SET_WALLPAPER"/>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 	<uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
+	<uses-permission android:name="android.permission.INTERNET"/>
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 
 	<queries>
 		<intent>
@@ -87,6 +90,12 @@
 		<activity android:name=".activities.Unlock"/>
 		<activity android:name=".activities.ProtectionSettings"/>
 		<activity android:name=".activities.HiddenApps"/>
+		<activity
+			android:name=".activities.FileManager"
+			android:configChanges="orientation|keyboardHidden|screenSize"/>
+		<activity
+			android:name=".activities.QrTransfer"
+			android:configChanges="orientation|keyboardHidden|screenSize"/>
 		<activity
 			android:name=".activities.AddShortcut"
 			android:exported="true"
