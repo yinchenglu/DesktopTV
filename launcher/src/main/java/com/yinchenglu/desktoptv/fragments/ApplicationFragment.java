@@ -64,7 +64,6 @@ import com.yinchenglu.desktoptv.views.ApplicationView;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -232,6 +231,9 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 	private void rebuildHome() {
 		View focusedBefore = getView() != null ? getView().findFocus() : null;
 		int focusPosition = focusedBefore instanceof ApplicationView ? ((ApplicationView) focusedBefore).getPosition() : -1;
+		int focusButtonId = View.NO_ID;
+		if (focusedBefore != null && !(focusedBefore instanceof ApplicationView) && isTopButton(focusedBefore))
+			focusButtonId = focusedBefore.getId();
 
 		mGridX = Math.max(2, mSetup.getGridX());
 		mShowNames = mSetup.showNames();
@@ -303,6 +305,10 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		if (focusPosition >= 0) {
 			focusPosition = Math.min(focusPosition, mTileIds.size() - 1);
 			focusPosition(focusPosition);
+		} else if (focusButtonId != View.NO_ID && getView() != null) {
+			View button = getView().findViewById(focusButtonId);
+			if (button != null)
+				button.requestFocus();
 		}
 	}
 
@@ -360,15 +366,25 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 				if (app == null)
 					continue;
 
-				int upId = R.id.settings;
-				if (y > 0 && mApplications[y - 1][x] != null)
-					upId = mApplications[y - 1][x].getId();
+				int upId;
+				if (y > 0) {
+					ApplicationView above = mApplications[y - 1][x] != null
+							? mApplications[y - 1][x] : lastTileOfRow(y - 1);
+					upId = above == null ? topButtonForColumn(x).getId() : above.getId();
+				} else {
+					// First row: the up key reaches the buttons of the top bar.
+					upId = topButtonForColumn(x).getId();
+				}
 
-				int downId = R.id.settings;
-				if (y + 1 < mGridY && mApplications[y + 1][x] != null)
-					downId = mApplications[y + 1][x].getId();
+				int downId = app.getId();
+				if (y + 1 < mGridY) {
+					ApplicationView below = mApplications[y + 1][x] != null
+							? mApplications[y + 1][x] : lastTileOfRow(y + 1);
+					if (below != null)
+						downId = below.getId();
+				}
 
-				int leftId = R.id.settings;
+				int leftId = app.getId();
 				if (x > 0 && mApplications[y][x - 1] != null)
 					leftId = mApplications[y][x - 1].getId();
 				else if (y > 0) {
@@ -377,7 +393,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 						leftId = previous.getId();
 				}
 
-				int rightId = R.id.settings;
+				int rightId = app.getId();
 				if (x + 1 < mGridX && mApplications[y][x + 1] != null)
 					rightId = mApplications[y][x + 1].getId();
 				else if (y + 1 < mGridY && mApplications[y + 1][0] != null)
@@ -390,33 +406,80 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 			}
 		}
 
-		ApplicationView first = firstTileOfRow(0);
-		mSettings.setNextFocusLeftId(R.id.qrtransfer);
-		mSettings.setNextFocusRightId(R.id.settings);
-		mSettings.setNextFocusUpId(R.id.settings);
-		mSettings.setNextFocusDownId(first == null ? R.id.settings : first.getId());
-		mCleanup.setNextFocusLeftId(R.id.cleanup);
-		mCleanup.setNextFocusRightId(R.id.filemanager);
-		mCleanup.setNextFocusUpId(R.id.cleanup);
-		mCleanup.setNextFocusDownId(first == null ? R.id.cleanup : first.getId());
-		mFileManager.setNextFocusLeftId(R.id.cleanup);
-		mFileManager.setNextFocusRightId(R.id.qrtransfer);
-		mFileManager.setNextFocusUpId(R.id.filemanager);
-		mFileManager.setNextFocusDownId(first == null ? R.id.filemanager : first.getId());
-		mQrTransfer.setNextFocusLeftId(R.id.filemanager);
-		mQrTransfer.setNextFocusRightId(R.id.settings);
-		mQrTransfer.setNextFocusUpId(R.id.qrtransfer);
-		mQrTransfer.setNextFocusDownId(first == null ? R.id.qrtransfer : first.getId());
+		setTopBarNavigation();
 	}
 
-	private ApplicationView firstTileOfRow(int y) {
-		if (y < 0 || y >= mGridY)
-			return null;
-		for (int x = 0; x < mGridX; x++) {
-			if (mApplications[y][x] != null)
-				return mApplications[y][x];
+	/**
+	 * Buttons of the top bar, from left to right.
+	 */
+	private View[] topButtons() {
+		return (new View[]{mCleanup, mFileManager, mQrTransfer, mSettings});
+	}
+
+	private boolean isTopButton(View view) {
+		for (View button : topButtons()) {
+			if (button != null && button == view)
+				return (true);
 		}
-		return null;
+		return (false);
+	}
+
+	/**
+	 * Top bar button horizontally aligned with the given grid column.
+	 */
+	private View topButtonForColumn(int x) {
+		View[] buttons = topButtons();
+		if (mGridX <= 1)
+			return (buttons[buttons.length - 1]);
+		int index = Math.round((float) x * (buttons.length - 1) / (mGridX - 1));
+		index = Math.max(0, Math.min(buttons.length - 1, index));
+		return (buttons[index]);
+	}
+
+	/**
+	 * Grid column placed under the given top bar button.
+	 */
+	private int columnForTopButton(int index) {
+		View[] buttons = topButtons();
+		if (buttons.length <= 1)
+			return (0);
+		int column = Math.round((float) index * (mGridX - 1) / (buttons.length - 1));
+		return (Math.max(0, Math.min(mGridX - 1, column)));
+	}
+
+	/**
+	 * First tile of the first row closest to the given column.
+	 */
+	private ApplicationView firstRowTileNearColumn(int column) {
+		if (mGridY < 1)
+			return (null);
+		for (int offset = 0; offset < mGridX; offset++) {
+			int left = column - offset;
+			if (left >= 0 && left < mGridX && mApplications[0][left] != null)
+				return (mApplications[0][left]);
+			int right = column + offset;
+			if (right >= 0 && right < mGridX && mApplications[0][right] != null)
+				return (mApplications[0][right]);
+		}
+		return (null);
+	}
+
+	/**
+	 * Makes the top bar reachable with the remote control: left/right
+	 * walk through the buttons and the down key drops back into the grid.
+	 */
+	private void setTopBarNavigation() {
+		View[] buttons = topButtons();
+		for (int i = 0; i < buttons.length; i++) {
+			View button = buttons[i];
+			if (button == null)
+				continue;
+			button.setNextFocusLeftId(buttons[Math.max(0, i - 1)].getId());
+			button.setNextFocusRightId(buttons[Math.min(buttons.length - 1, i + 1)].getId());
+			button.setNextFocusUpId(button.getId());
+			ApplicationView below = firstRowTileNearColumn(columnForTopButton(i));
+			button.setNextFocusDownId(below == null ? button.getId() : below.getId());
+		}
 	}
 
 	private ApplicationView lastTileOfRow(int y) {
@@ -530,6 +593,13 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		mDateFormat = android.text.format.DateFormat.getLongDateFormat(getActivity());
 		setClock();
 		rebuildHome();
+		// Nothing focused yet: start on the first tile instead of letting the
+		// system pick the first focusable button of the top bar.
+		if (getView() != null && getView().findFocus() == null) {
+			ApplicationView first = firstRowTileNearColumn(0);
+			if (first != null)
+				first.requestFocus();
+		}
 		getActivity().getSharedPreferences(Setup.APPLICATIONS_NAME, Context.MODE_PRIVATE)
 				.registerOnSharedPreferenceChangeListener(mShortcutChangedListener);
 		mShowingShortcut = false;
@@ -744,16 +814,20 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 			return (true);
 		switch (event.getKeyCode()) {
 			case KeyEvent.KEYCODE_DPAD_UP:
-				moveTile(-mGridX);
+				// Already on the first row: nothing above to move into.
+				if (mMovePosition >= mGridX)
+					moveTileTo(mMovePosition - mGridX);
 				return (true);
 			case KeyEvent.KEYCODE_DPAD_DOWN:
-				moveTile(mGridX);
+				// Already on the last row: nothing below to move into.
+				if (mMovePosition < (mGridY - 1) * mGridX)
+					moveTileTo(mMovePosition + mGridX);
 				return (true);
 			case KeyEvent.KEYCODE_DPAD_LEFT:
-				moveTile(mMovePosition % mGridX == 0 ? 0 : -1);
+				moveTileTo(mMovePosition - 1);
 				return (true);
 			case KeyEvent.KEYCODE_DPAD_RIGHT:
-				moveTile(mMovePosition % mGridX == mGridX - 1 ? 0 : 1);
+				moveTileTo(mMovePosition + 1);
 				return (true);
 			case KeyEvent.KEYCODE_ENTER:
 			case KeyEvent.KEYCODE_DPAD_CENTER:
@@ -785,14 +859,30 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 			mMoveHint.setVisibility(moving ? View.VISIBLE : View.GONE);
 	}
 
-	private void moveTile(int delta) {
-		if (delta == 0 || mMovePosition < 0)
+	/**
+	 * Inserts the tile being moved into the target slot instead of swapping
+	 * it with the tile already there: the tiles between the old and the new
+	 * slot all slide back by one place.
+	 * <p>
+	 * The target is clamped to the grid, so the leftmost tile of a row can
+	 * move left to the last slot of the previous row (and the rightmost tile
+	 * of a row to the first slot of the next one).
+	 */
+	private void moveTileTo(int target) {
+		if (mMovePosition < 0)
 			return;
-		int target = mMovePosition + delta;
-		if (target < 0 || target >= mTileIds.size())
+		int count = mTileIds.size();
+		if (count < 2)
+			return;
+		if (target < 0)
+			target = 0;
+		if (target >= count)
+			target = count - 1;
+		if (target == mMovePosition)
 			return;
 		List<String> tiles = new ArrayList<>(mTileIds);
-		Collections.swap(tiles, mMovePosition, target);
+		String moved = tiles.remove(mMovePosition);
+		tiles.add(target, moved);
 		mSetup.setHomeTiles(tiles);
 		mMovePosition = target;
 		rebuildHome();
