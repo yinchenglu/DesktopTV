@@ -228,8 +228,8 @@
 	<string name="title_study_state">Today</string>
 	<string name="summary_study_state">Left %1$s · earned %2$s · used %3$s</string>
 	<string name="title_study_reset">Reset today</string>
-	<string name="summary_study_reset">Clear today's balance and counters</string>
-	<string name="study_reset_done">Today's study data cleared</string>
+	<string name="summary_study_reset">Clear today\'s balance and counters</string>
+	<string name="study_reset_done">Today\'s study data cleared</string>
 
 	<string-array name="study_grades">
 		<item>Grade 1</item>
