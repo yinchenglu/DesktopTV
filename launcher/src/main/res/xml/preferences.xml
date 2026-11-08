@@ -64,6 +64,63 @@
 			android:summary="@string/summary_reset_defaults"
 			android:title="@string/title_reset_defaults"/>
 	</PreferenceCategory>
+	<PreferenceCategory android:key="category_study" android:title="@string/title_study_category">
+		<CheckBoxPreference
+			android:defaultValue="true"
+			android:key="preference_study_enabled"
+			android:summary="@string/summary_study_enabled"
+			android:title="@string/title_study_enabled"/>
+		<ListPreference
+			android:defaultValue="3"
+			android:entries="@array/study_grades"
+			android:entryValues="@array/study_grade_values"
+			android:key="preference_study_grade"
+			android:summary="@string/summary_study_grade"
+			android:title="@string/title_study_grade"/>
+		<ListPreference
+			android:defaultValue="group"
+			android:entries="@array/study_modes"
+			android:entryValues="@array/study_mode_values"
+			android:key="preference_study_mode"
+			android:summary="@string/summary_study_mode"
+			android:title="@string/title_study_mode"/>
+		<ListPreference
+			android:defaultValue="10"
+			android:entries="@array/study_sizes"
+			android:entryValues="@array/study_sizes"
+			android:key="preference_study_size"
+			android:summary="@string/summary_study_size"
+			android:title="@string/title_study_size"/>
+		<ListPreference
+			android:defaultValue="70"
+			android:entries="@array/study_pass_rates"
+			android:entryValues="@array/study_pass_values"
+			android:key="preference_study_pass"
+			android:summary="@string/summary_study_pass"
+			android:title="@string/title_study_pass"/>
+		<ListPreference
+			android:defaultValue="15"
+			android:entries="@array/study_unlock_labels"
+			android:entryValues="@array/study_unlock_values"
+			android:key="preference_study_unlock"
+			android:summary="@string/summary_study_unlock"
+			android:title="@string/title_study_unlock"/>
+		<ListPreference
+			android:defaultValue="120"
+			android:entries="@array/study_limit_labels"
+			android:entryValues="@array/study_limit_values"
+			android:key="preference_study_limit"
+			android:summary="@string/summary_study_limit"
+			android:title="@string/title_study_limit"/>
+		<Preference
+			android:key="preference_study_state"
+			android:selectable="false"
+			android:title="@string/title_study_state"/>
+		<Preference
+			android:key="preference_study_reset"
+			android:summary="@string/summary_study_reset"
+			android:title="@string/title_study_reset"/>
+	</PreferenceCategory>
 	<PreferenceCategory
 		android:key="category_grid"
 		android:title="@string/app_grid">

@@ -180,4 +180,131 @@
 		<item>24</item>
 		<item>12</item>
 	</string-array>
+
+	<!-- study module -->
+	<string name="study_button">Study</string>
+	<string name="study_title">Study</string>
+	<string name="study_progress">Question %1$d / %2$d</string>
+	<string name="study_streak_progress">Streak %1$d / %2$d</string>
+	<string name="study_correct">Correct! %1$s</string>
+	<string name="study_wrong">Wrong, the answer is %1$s. %2$s</string>
+	<string name="study_hint_choose">Arrows to choose · OK to answer · BACK to leave</string>
+	<string name="study_hint_next">Press OK to continue</string>
+	<string name="study_pass_title">Passed!</string>
+	<string name="study_fail_title">Not passed</string>
+	<string name="study_practice_title">Practice finished</string>
+	<string name="study_rate">Accuracy %1$d%% (%2$d of %3$d correct)</string>
+	<string name="study_reward">%1$s of TV time unlocked</string>
+	<string name="study_reward_none">Daily limit reached, no more time today</string>
+	<string name="study_extra_pool">%1$d extra questions added to practice</string>
+	<string name="study_action_again">Try again</string>
+	<string name="study_action_start">Start watching</string>
+	<string name="study_action_next">Next group</string>
+	<string name="study_balance_label">Today left: %1$s</string>
+	<string name="study_seconds">%1$d s</string>
+	<string name="study_minutes">%1$d min</string>
+	<string name="study_minutes_seconds">%1$d min %2$d s</string>
+	<string name="study_channel_title">Study time</string>
+	<string name="study_channel_text">Counting down the TV time you unlocked</string>
+	<string name="study_locked_toast">Answer a group of questions first</string>
+	<string name="study_title_format">%1$s · %2$s</string>
+
+	<!-- study settings -->
+	<string name="title_study_category">Study</string>
+	<string name="title_study_enabled">Study control</string>
+	<string name="summary_study_enabled">Watching apps needs a passed group of questions</string>
+	<string name="title_study_grade">Grade</string>
+	<string name="summary_study_grade">Only questions of the selected grade are asked</string>
+	<string name="title_study_mode">Play mode</string>
+	<string name="summary_study_mode">How one group of questions is completed</string>
+	<string name="title_study_size">Questions per group</string>
+	<string name="summary_study_size">Question count of one task</string>
+	<string name="title_study_pass">Pass rate</string>
+	<string name="summary_study_pass">Accuracy needed to unlock TV time</string>
+	<string name="title_study_unlock">Unlock time</string>
+	<string name="summary_study_unlock">TV time granted by one passed group</string>
+	<string name="title_study_limit">Daily limit</string>
+	<string name="summary_study_limit">Maximum TV time that can be earned per day</string>
+	<string name="title_study_state">Today</string>
+	<string name="summary_study_state">Left %1$s · earned %2$s · used %3$s</string>
+	<string name="title_study_reset">Reset today</string>
+	<string name="summary_study_reset">Clear today's balance and counters</string>
+	<string name="study_reset_done">Today's study data cleared</string>
+
+	<string-array name="study_grades">
+		<item>Grade 1</item>
+		<item>Grade 2</item>
+		<item>Grade 3</item>
+		<item>Grade 4</item>
+		<item>Grade 5</item>
+		<item>Grade 6</item>
+	</string-array>
+	<string-array name="study_grade_values" translatable="false">
+		<item>1</item>
+		<item>2</item>
+		<item>3</item>
+		<item>4</item>
+		<item>5</item>
+		<item>6</item>
+	</string-array>
+	<string-array name="study_modes">
+		<item>Group challenge</item>
+		<item>Streak</item>
+		<item>Free practice</item>
+	</string-array>
+	<string-array name="study_mode_values" translatable="false">
+		<item>group</item>
+		<item>streak</item>
+		<item>free</item>
+	</string-array>
+	<string-array name="study_sizes" translatable="false">
+		<item>5</item>
+		<item>10</item>
+		<item>15</item>
+		<item>20</item>
+	</string-array>
+	<string-array name="study_pass_rates" translatable="false">
+		<item>60%</item>
+		<item>70%</item>
+		<item>80%</item>
+		<item>90%</item>
+		<item>100%</item>
+	</string-array>
+	<string-array name="study_pass_values" translatable="false">
+		<item>60</item>
+		<item>70</item>
+		<item>80</item>
+		<item>90</item>
+		<item>100</item>
+	</string-array>
+	<string-array name="study_unlock_labels">
+		<item>5 min</item>
+		<item>10 min</item>
+		<item>15 min</item>
+		<item>20 min</item>
+		<item>30 min</item>
+	</string-array>
+	<string-array name="study_unlock_values" translatable="false">
+		<item>5</item>
+		<item>10</item>
+		<item>15</item>
+		<item>20</item>
+		<item>30</item>
+	</string-array>
+	<string-array name="study_limit_labels">
+		<item>30 min</item>
+		<item>60 min</item>
+		<item>90 min</item>
+		<item>120 min</item>
+		<item>180 min</item>
+		<item>240 min</item>
+	</string-array>
+	<string-array name="study_limit_values" translatable="false">
+		<item>30</item>
+		<item>60</item>
+		<item>90</item>
+		<item>120</item>
+		<item>180</item>
+		<item>240</item>
+	</string-array>
 </resources>

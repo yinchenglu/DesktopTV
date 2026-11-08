@@ -167,4 +167,83 @@
 	<string name="cleaning_memory">正在清理内存…</string>
 	<string name="memory_cleaned">已释放 %1$d MB 内存</string>
 	<string name="app_name">桌面TV</string>
+
+	<!-- study module -->
+	<string name="study_button">学习</string>
+	<string name="study_title">学习</string>
+	<string name="study_progress">第 %1$d / %2$d 题</string>
+	<string name="study_streak_progress">连续答对 %1$d / %2$d</string>
+	<string name="study_correct">答对了！%1$s</string>
+	<string name="study_wrong">答错了，正确答案是 %1$s。%2$s</string>
+	<string name="study_hint_choose">方向键选择 · 确定键作答 · 返回键离开</string>
+	<string name="study_hint_next">按确定键继续</string>
+	<string name="study_pass_title">达标啦！</string>
+	<string name="study_fail_title">没有达标</string>
+	<string name="study_practice_title">练习结束</string>
+	<string name="study_rate">正确率 %1$d%%（答对 %2$d / %3$d 题）</string>
+	<string name="study_reward">解锁 %1$s 电视时间</string>
+	<string name="study_reward_none">今天的时长已领完，不再增加</string>
+	<string name="study_extra_pool">已加入 %1$d 道加练题</string>
+	<string name="study_action_again">再试一次</string>
+	<string name="study_action_start">开始看电视</string>
+	<string name="study_action_next">再来一组</string>
+	<string name="study_balance_label">今日剩余 %1$s</string>
+	<string name="study_seconds">%1$d 秒</string>
+	<string name="study_minutes">%1$d 分钟</string>
+	<string name="study_minutes_seconds">%1$d 分 %2$d 秒</string>
+	<string name="study_channel_title">学习计时</string>
+	<string name="study_channel_text">正在计算你解锁的电视时间</string>
+	<string name="study_locked_toast">先答一组题吧</string>
+	<string name="study_title_format">%1$s · %2$s</string>
+
+	<!-- study settings -->
+	<string name="title_study_category">学习</string>
+	<string name="title_study_enabled">学习管控</string>
+	<string name="summary_study_enabled">打开后，看应用前要先答一组题</string>
+	<string name="title_study_grade">年级</string>
+	<string name="summary_study_grade">只出所选年级的题目</string>
+	<string name="title_study_mode">玩法</string>
+	<string name="summary_study_mode">一组题怎样算完成</string>
+	<string name="title_study_size">每组题数</string>
+	<string name="summary_study_size">一次任务的题目数量</string>
+	<string name="title_study_pass">达标正确率</string>
+	<string name="summary_study_pass">答对多少才算通过</string>
+	<string name="title_study_unlock">每次解锁</string>
+	<string name="summary_study_unlock">通过一组题解锁的电视时间</string>
+	<string name="title_study_limit">每日上限</string>
+	<string name="summary_study_limit">每天最多能解锁多少电视时间</string>
+	<string name="title_study_state">今日情况</string>
+	<string name="summary_study_state">剩余 %1$s · 已获得 %2$s · 已使用 %3$s</string>
+	<string name="title_study_reset">清零今日</string>
+	<string name="summary_study_reset">清空今天的时长余额和统计</string>
+	<string name="study_reset_done">今日学习数据已清空</string>
+
+	<string-array name="study_grades">
+		<item>一年级</item>
+		<item>二年级</item>
+		<item>三年级</item>
+		<item>四年级</item>
+		<item>五年级</item>
+		<item>六年级</item>
+	</string-array>
+	<string-array name="study_modes">
+		<item>按组闯关</item>
+		<item>连续答对</item>
+		<item>自由练习</item>
+	</string-array>
+	<string-array name="study_unlock_labels">
+		<item>5 分钟</item>
+		<item>10 分钟</item>
+		<item>15 分钟</item>
+		<item>20 分钟</item>
+		<item>30 分钟</item>
+	</string-array>
+	<string-array name="study_limit_labels">
+		<item>30 分钟</item>
+		<item>60 分钟</item>
+		<item>90 分钟</item>
+		<item>120 分钟</item>
+		<item>180 分钟</item>
+		<item>240 分钟</item>
+	</string-array>
 </resources>

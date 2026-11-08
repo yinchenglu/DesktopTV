@@ -43,6 +43,7 @@ import com.yinchenglu.desktoptv.HomeImage;
 import com.yinchenglu.desktoptv.Launcher;
 import com.yinchenglu.desktoptv.Protection;
 import com.yinchenglu.desktoptv.Setup;
+import com.yinchenglu.desktoptv.study.Study;
 
 import java.util.Locale;
 import java.io.File;
@@ -70,6 +71,9 @@ public class Preferences extends PreferenceActivity {
 	private static final String PREFERENCE_ABOUT = "preference_about";
 	private static final String PREFERENCE_HIDDEN_APPS = "preference_hidden_apps";
 	private static final String PREFERENCE_RESET_DEFAULTS = "preference_reset_defaults";
+	private static final String PREFERENCE_STUDY_RESET = "preference_study_reset";
+	private static final String PREFERENCE_STUDY_STATE = "preference_study_state";
+	private static final String PREFERENCE_STUDY_ENABLED = "preference_study_enabled";
 	private static final String PREFERENCE_SCREENSAVER = "preference_screensaver";
 	private static final int REQUEST_UNLOCK = 100;
 	private static final int REQUEST_IMAGE = 101;
@@ -107,6 +111,22 @@ public class Preferences extends PreferenceActivity {
 			@Override
 			public boolean onPreferenceClick(Preference preference) {
 				confirmResetDefaults();
+				return (true);
+			}
+		});
+		findPreference(PREFERENCE_STUDY_RESET).setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				resetStudyToday();
+				return (true);
+			}
+		});
+		findPreference(PREFERENCE_STUDY_ENABLED).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+			@Override
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
+				if (newValue instanceof Boolean && !((Boolean) newValue))
+					new Study(Preferences.this).stopWatch();
+				updateStudyState();
 				return (true);
 			}
 		});
@@ -188,6 +208,29 @@ public class Preferences extends PreferenceActivity {
 		}
 
 		findPreference(PREFERENCE_ABOUT).setTitle(getString(R.string.version_label, version));
+	}
+
+	private void updateStudyState() {
+		Preference state = findPreference(PREFERENCE_STUDY_STATE);
+		if (state == null)
+			return;
+		Study study = new Study(this);
+		state.setSummary(getString(R.string.summary_study_state,
+				study.formatDuration(study.getBalance()),
+				study.formatDuration(study.getEarnedToday()),
+				study.formatDuration(study.getUsedToday())));
+	}
+
+	private void resetStudyToday() {
+		new Study(this).resetToday();
+		updateStudyState();
+		Toast.makeText(this, R.string.study_reset_done, Toast.LENGTH_SHORT).show();
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		updateStudyState();
 	}
 
 	@Override

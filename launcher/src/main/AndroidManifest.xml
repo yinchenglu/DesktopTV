@@ -48,6 +48,9 @@
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
 	<queries>
 		<intent>
@@ -96,6 +99,21 @@
 		<activity
 			android:name=".activities.QrTransfer"
 			android:configChanges="orientation|keyboardHidden|screenSize"/>
+		<activity
+			android:name=".study.QuizActivity"
+			android:configChanges="orientation|keyboardHidden|screenSize"
+			android:excludeFromRecents="true"
+			android:launchMode="singleTop"
+			android:taskAffinity=""
+			android:theme="@style/StudyTheme"/>
+		<service
+			android:name=".study.StudyGuardService"
+			android:exported="false"
+			android:foregroundServiceType="specialUse">
+			<property
+				android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+				android:value="parental_control_time_limit"/>
+		</service>
 		<activity
 			android:name=".activities.AddShortcut"
 			android:exported="true"

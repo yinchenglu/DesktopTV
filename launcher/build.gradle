@@ -58,8 +58,8 @@ android {
         applicationId "com.yinchenglu.desktoptv"
         minSdkVersion 14
         targetSdkVersion 37
-        versionCode 260
-        versionName "2.6.0"
+        versionCode 270
+        versionName "2.7.0"
     }
 
     signingConfigs {

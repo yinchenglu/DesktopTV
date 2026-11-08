@@ -59,6 +59,8 @@ import com.yinchenglu.desktoptv.activities.Preferences;
 import com.yinchenglu.desktoptv.activities.AddShortcut;
 import com.yinchenglu.desktoptv.activities.FileManager;
 import com.yinchenglu.desktoptv.activities.QrTransfer;
+import com.yinchenglu.desktoptv.study.QuizActivity;
+import com.yinchenglu.desktoptv.study.Study;
 import com.yinchenglu.desktoptv.views.ApplicationView;
 
 import java.text.DateFormat;
@@ -75,6 +77,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 	private static final String STATE_APPLICATION = "focused_application";
 	private static final String STATE_BUTTON = "focused_button";
 	private static final int REQUEST_CODE_UNLOCK = 0x22;
+	private static final int REQUEST_CODE_QUIZ = 0x23;
 	// Popup menu actions
 	private static final int MENU_OPEN = 0;
 	private static final int MENU_MOVE = 1;
@@ -88,9 +91,13 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 	private View mCleanup;
 	private View mFileManager;
 	private View mQrTransfer;
+	private View mStudy;
 	private Network mNetwork;
 	private boolean mMoveMode = false;
 	private int mMovePosition = -1;
+	private String mPendingQuizApp;
+	private String mPendingQuizName;
+	private boolean mPendingLaunch;
 	private TextView mClock;
 	private TextView mDate;
 	private DateFormat mTimeFormat;
@@ -163,6 +170,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		mCleanup = view.findViewById(R.id.cleanup);
 		mFileManager = view.findViewById(R.id.filemanager);
 		mQrTransfer = view.findViewById(R.id.qrtransfer);
+		mStudy = view.findViewById(R.id.study);
 		mIp = (TextView) view.findViewById(R.id.ip_address);
 		mMoveHint = (TextView) view.findViewById(R.id.move_hint);
 		mNetworkIcon = (ImageView) view.findViewById(R.id.network_icon);
@@ -180,6 +188,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		mCleanup.setOnClickListener(this);
 		mFileManager.setOnClickListener(this);
 		mQrTransfer.setOnClickListener(this);
+		mStudy.setOnClickListener(this);
 
 		rebuildHome();
 
@@ -413,7 +422,7 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 	 * Buttons of the top bar, from left to right.
 	 */
 	private View[] topButtons() {
-		return (new View[]{mCleanup, mFileManager, mQrTransfer, mSettings});
+		return (new View[]{mCleanup, mFileManager, mQrTransfer, mStudy, mSettings});
 	}
 
 	private boolean isTopButton(View view) {
@@ -593,6 +602,13 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 		mDateFormat = android.text.format.DateFormat.getLongDateFormat(getActivity());
 		setClock();
 		rebuildHome();
+		// Back on the desktop: pause the screen-time countdown until an
+		// application is opened again. onActivityResult arrives right before
+		// onResume, so a fresh launch must not be cancelled here.
+		if (mPendingLaunch)
+			mPendingLaunch = false;
+		else
+			new Study(getContext()).stopWatch();
 		// Nothing focused yet: start on the first tile instead of letting the
 		// system pick the first focusable button of the top bar.
 		if (getView() != null && getView().findFocus() == null) {
@@ -770,6 +786,8 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 			startActivity(new Intent(getContext(), FileManager.class));
 		else if (v.getId() == R.id.qrtransfer)
 			startActivity(new Intent(getContext(), QrTransfer.class));
+		else if (v.getId() == R.id.study)
+			startActivity(QuizActivity.createIntent(getContext(), false, null, null));
 	}
 
 	/**
@@ -905,7 +923,34 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 			startActivityForResult(Protection.getIntent(getContext(), appId), REQUEST_CODE_UNLOCK);
 			return;
 		}
+		if (requiresQuiz(appId, name))
+			return;
 		launchApplication(appId, name);
+	}
+
+	/**
+	 * Study gate: with the control enabled and no unlocked time left, a
+	 * group of questions must be passed before the application opens.
+	 * Any failure here unlocks the application, the gate must never lock
+	 * the user out because of a bug.
+	 */
+	private boolean requiresQuiz(String appId, String name) {
+		try {
+			Study study = new Study(getContext());
+			if (!study.isGuardEnabled())
+				return (false);
+			if (study.getBalance() > 0)
+				return (false);
+			mPendingQuizApp = appId;
+			mPendingQuizName = name;
+			startActivityForResult(QuizActivity.createIntent(getContext(), true, appId, name),
+					REQUEST_CODE_QUIZ);
+			Toast.makeText(getContext(), R.string.study_locked_toast, Toast.LENGTH_SHORT).show();
+			return (true);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return (false);
+		}
 	}
 
 	private void launchApplication(String appId, String name) {
@@ -928,6 +973,9 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 			}
 			Toast.makeText(getActivity(), name, Toast.LENGTH_SHORT).show();
 			startActivity(startApp);
+			// The countdown runs only while another application is on screen.
+			mPendingLaunch = true;
+			new Study(getContext()).startWatch();
 		} catch (Exception e) {
 			String message = Shortcuts.isShortcut(appId) ? getString(R.string.application_unavailable, name) : name + " : " + e.getMessage();
 			Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
@@ -942,6 +990,15 @@ public class ApplicationFragment extends Fragment implements View.OnClickListene
 				String id = intent.getStringExtra(ApplicationList.APP_ID);
 				openApplication(id, id);
 			}
+			return;
+		}
+		if (requestCode == REQUEST_CODE_QUIZ) {
+			String appId = mPendingQuizApp;
+			String name = mPendingQuizName;
+			mPendingQuizApp = null;
+			mPendingQuizName = null;
+			if (resultCode == Activity.RESULT_OK && !TextUtils.isEmpty(appId))
+				launchApplication(appId, name);
 		}
 	}
 

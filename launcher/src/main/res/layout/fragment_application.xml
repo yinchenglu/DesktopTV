@@ -115,6 +115,33 @@
 			</LinearLayout>
 
 			<LinearLayout
+				android:id="@+id/study"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginLeft="8dp"
+				android:background="@drawable/application_selector"
+				android:focusable="true"
+				android:focusableInTouchMode="false"
+				android:descendantFocusability="blocksDescendants"
+				android:gravity="center_horizontal"
+				android:orientation="vertical"
+				android:padding="6dp">
+
+				<ImageView
+					android:layout_width="40dp"
+					android:layout_height="40dp"
+					android:contentDescription="@string/study_button"
+					android:src="@drawable/ic_study"/>
+
+				<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/study_button"
+					android:textColor="#ffffffff"
+					android:textSize="12sp"/>
+			</LinearLayout>
+
+			<LinearLayout
 				android:id="@+id/battery_layout"
 				android:visibility="invisible"
 				android:layout_width="wrap_content"
